@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 
 /*
   Admin-only display preference: light vs dark. Persisted so a chosen theme
-  survives a refresh. "dark" is the brand forest-green baseline (the default
+  survives a refresh. "dark" is the brand dark baseline (the default
   :root tokens); "light" applies the `admin-theme` layer in AdminApp. The guest
   tunnel is unaffected by this.
 */

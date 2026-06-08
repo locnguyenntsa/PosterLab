@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 
 /*
   Flat tag / badge. Solid color block, ink or cream text, no radius. Text is the
-  UI label tier (Barlow Condensed 600, 14px, 0.18em tracking, uppercase) — see
+  UI label tier (Inter 600, 14px, 0.18em tracking, uppercase) — see
   .label in index.css. Padding 10×5 matches the Figma Badge component. Semantic
   variants are solid blocks (no soft tints).
 */

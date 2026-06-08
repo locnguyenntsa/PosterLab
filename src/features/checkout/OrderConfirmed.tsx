@@ -19,7 +19,7 @@ export function OrderConfirmed() {
 
   return (
     <div className="mx-auto flex min-h-[calc(100svh-4rem)] w-full max-w-3xl flex-col items-center px-5 py-16 text-center sm:px-10">
-      {/* Hard lime square + outline check — bold flat confirmation, no glow */}
+      {/* Hard orange square + outline check — bold flat confirmation, no glow */}
       <motion.div
         {...fade}
         transition={{ duration: 0.12 }}

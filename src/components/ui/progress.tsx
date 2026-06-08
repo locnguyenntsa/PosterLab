@@ -6,7 +6,7 @@ interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
   value?: number
 }
 
-/* Flat progress bar — solid lime fill on a bordered track. Hard edges. */
+/* Flat progress bar — solid orange fill on a bordered track. Hard edges. */
 const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
   ({ className, value = 0, ...props }, ref) => {
     const clamped = Math.min(100, Math.max(0, value))

@@ -4,25 +4,40 @@
   ───────────────────────────────────────────────────────────────────────────
   ONEPACT — FLAT EDITORIAL SPORTS UI SYSTEM  (placeholder brand v1.0)
   Flat. Zero gradients. Zero drop shadows. Zero border-radius. Hard geometry.
-  Display: Bebas Neue (uppercase). UI/body: Barlow Condensed.
-  Accent (electric lime) is used sparingly — CTAs and one rule per screen.
+  Display: Bebas Neue (uppercase). UI/body: Inter.
+  Accent (Orange Blaze) is used sparingly — CTAs and one rule per screen.
 
-  Brand colors are PLACEHOLDERS — swap --c-primary / --c-secondary / --c-accent
-  when the client confirms. Team selection re-tints --c-primary/--c-secondary
-  at runtime (see src/lib/teamTheme.ts) with a HARD cut (no transition).
+  REBRAND HERE: the brand DARK palette lives in the --brand-* tokens below
+  (single source). :root (guest) and .chrome-dark (admin chrome) both reference
+  them, and src/lib/brand.ts mirrors them for the <canvas> poster + admin forms.
+  Also update --c-accent / --c-ink and the admin LIGHT palette (:root.admin-theme).
+  Team selection re-tints --c-primary/--c-secondary at runtime (see
+  src/lib/teamTheme.ts) with a HARD cut (no transition).
   ───────────────────────────────────────────────────────────────────────────
 */
 
 :root {
-  /* === PLACEHOLDER — swap when client confirms === */
-  --c-primary: #1a4d2e; /* dark forest green — app background */
-  --c-secondary: #143d24; /* deeper green — surfaces / depth */
-  --c-accent: #c8f000; /* electric lime — CTA only, use sparingly */
-  --c-ink: #0a0a0a; /* near-black — text on lime, secondary btn bg */
-  --c-text-main: #f0ebe0; /* primary text — main readable content */
-  --c-text-mute: #a8b8a0; /* secondary text — supporting copy / captions (SOLID, no opacity hack) */
-  --c-border: rgba(240, 235, 224, 0.14);
-  --c-pattern: rgba(240, 235, 224, 0.06); /* logotext overlay opacity */
+  /* === BRAND DARK PALETTE — single source. Swap these on a rebrand. =========
+     The admin LIGHT theme overrides the derived --c-* below; .chrome-dark
+     restores them from these same --brand-* values, so there is one place to
+     change the dark palette. Keep src/lib/brand.ts in sync with these. */
+  --brand-primary: #121317; /* Base — app background (near-black) */
+  --brand-secondary: #1a1920; /* Surface — cards / panels */
+  --brand-text: #f4f4f5; /* Texte — primary readable content */
+  --brand-mute: #9a90a6; /* Muted — supporting copy / captions */
+  --brand-border: #2a2b31; /* Line — hairline borders */
+  --brand-field: #212229; /* Surface 2 — elevated wells / inputs */
+
+  /* Active theme tokens (guest = brand dark). Derived from --brand-* so a
+     rebrand touches the block above, not these. */
+  --c-primary: var(--brand-primary);
+  --c-secondary: var(--brand-secondary);
+  --c-accent: #ff4f18; /* Orange Blaze — brand accent: logo, CTA, UI accents only */
+  --c-ink: #0a0a0a; /* near-black — text on accent, secondary btn bg, name bars */
+  --c-text-main: var(--brand-text);
+  --c-text-mute: var(--brand-mute); /* SOLID, no opacity hack */
+  --c-border: var(--brand-border);
+  --c-pattern: rgba(244, 244, 245, 0.06); /* logotext overlay opacity (tint of brand-text) */
 
   /* Flat semantic signals (coach feedback) — solid blocks, no soft tints */
   --c-warn: #f2b705;
@@ -31,9 +46,9 @@
   /* Text that always sits on a DARK/colored fill (badges, secondary/danger
      buttons, poster name bars, menus, toasts). Stays light even when the page
      theme is light — so those elements keep their light-on-dark contrast. */
-  --c-on-dark: #f0ebe0;
+  --c-on-dark: #f4f4f5;
   /* Input/field background — dark-translucent on the dark theme, white on light. */
-  --c-field: rgb(10 10 10 / 0.3);
+  --c-field: var(--brand-field);
 
   /* ── TYPE SCALE — 7 tiers, min 13px in UI ──────────────────────────────
      Display tiers (hero/section/card) scale down on small screens via clamp,
@@ -41,16 +56,16 @@
   --text-hero: clamp(3.5rem, 10vw, 6rem); /* → 96px — page hero only */
   --text-section: clamp(2.5rem, 6.5vw, 4rem); /* → 64px — section / step headings */
   --text-card: clamp(1.875rem, 3vw, 2.5rem); /* → 40px — card / feature titles */
-  --text-sub: 1.5rem; /* 24px — subheadings (Barlow 700) */
-  --text-body: 1.125rem; /* 18px — body copy (Barlow 400) */
-  --text-label: 0.875rem; /* 14px — tags, nav, UI labels (Barlow 600) */
-  --text-meta: 0.8125rem; /* 13px — captions, step counters (Barlow 500) */
+  --text-sub: 1.5rem; /* 24px — subheadings (Inter 700) */
+  --text-body: 1.125rem; /* 18px — body copy (Inter 400) */
+  --text-label: 0.875rem; /* 14px — tags, nav, UI labels (Inter 600) */
+  --text-meta: 0.8125rem; /* 13px — captions, step counters (Inter 500) */
 
   /* ── TEXT COLOR — 4 levels, never dim text with opacity ───────────────── */
-  --text-primary: #f0ebe0; /* main readable content */
-  --text-secondary: #a8b8a0; /* supporting copy, descriptions, captions */
-  --text-accent: #c8f000; /* step numbers, tags, highlighted labels */
-  --text-ghost: rgba(240, 235, 224, 0.3); /* BG pattern only — never for readable text */
+  --text-primary: var(--brand-text); /* main readable content */
+  --text-secondary: var(--brand-mute); /* supporting copy, descriptions, captions */
+  --text-accent: #ff4f18; /* step numbers, tags, highlighted labels */
+  --text-ghost: rgba(244, 244, 245, 0.3); /* BG pattern only — never for readable text (tint of brand-text) */
 }
 
 /*
@@ -59,20 +74,20 @@
   data-heavy readability. Applied by toggling `admin-theme` on <html> while the
   admin app is mounted (so portaled dialogs/toasts under <body> inherit it too).
   Only background / surface / text / border / field tokens flip; --c-ink (dark
-  chips/menus), --c-accent (lime) and --c-on-dark (light text on those) stay put,
+  chips/menus), --c-accent (orange) and --c-on-dark (light text on those) stay put,
   so badges, dropdowns, toasts and poster previews keep their intended contrast.
 */
 :root.admin-theme {
-  --c-primary: #eef3ec; /* page / app background — very light green */
+  --c-primary: #f1f1f4; /* page / app background — light neutral */
   --c-secondary: #ffffff; /* panels / surfaces — white */
-  --c-text-main: #16241d; /* primary text — dark green ink */
-  --c-text-mute: #5d6e64; /* secondary text */
-  --c-border: rgba(20, 40, 30, 0.14); /* hairline on light */
+  --c-text-main: #18181b; /* primary text — near-black */
+  --c-text-mute: #6b6770; /* secondary text */
+  --c-border: rgba(18, 19, 23, 0.12); /* hairline on light */
   --c-field: #ffffff; /* white inputs */
 
   /* The .t-* type tiers bake these in directly — flip them to dark too. */
-  --text-primary: #16241d;
-  --text-secondary: #5d6e64;
+  --text-primary: #18181b;
+  --text-secondary: #6b6770;
 }
 
 /*
@@ -91,20 +106,20 @@
 }
 
 /*
-  Re-assert the dark GREEN brand palette for a subtree, regardless of the light
-  admin theme above. Used on the admin top bar + sidebar so the chrome stays
-  green (matching the guest brand) while the content area + modals are light.
-  These mirror the :root defaults — keep them in sync if the brand palette moves.
+  Re-assert the dark brand palette for a subtree, regardless of the light admin
+  theme above. Used on the admin top bar + sidebar so the chrome stays on-brand
+  while the content area + modals are light. Pulls from the same --brand-* single
+  source as :root, so it follows a rebrand automatically (no values to keep in sync).
 */
 .chrome-dark {
-  --c-primary: #1a4d2e;
-  --c-secondary: #143d24;
-  --c-text-main: #f0ebe0;
-  --c-text-mute: #a8b8a0;
-  --c-border: rgba(240, 235, 224, 0.14);
-  --c-field: rgb(10 10 10 / 0.3);
-  --text-primary: #f0ebe0;
-  --text-secondary: #a8b8a0;
+  --c-primary: var(--brand-primary);
+  --c-secondary: var(--brand-secondary);
+  --c-text-main: var(--brand-text);
+  --c-text-mute: var(--brand-mute);
+  --c-border: var(--brand-border);
+  --c-field: var(--brand-field);
+  --text-primary: var(--brand-text);
+  --text-secondary: var(--brand-mute);
 }
 
 @theme inline {
@@ -123,7 +138,7 @@
   --color-on-dark: var(--c-on-dark);
 
   --font-display: 'Bebas Neue', sans-serif;
-  --font-ui: 'Barlow Condensed', system-ui, sans-serif;
+  --font-ui: 'Inter', system-ui, sans-serif;
 
   /* Everything is hard-edged */
   --radius-sm: 0px;
@@ -274,7 +289,7 @@
   }
 
   /* ── TYPE SCALE TIERS ──────────────────────────────────────────────────
-     7 tiers. Display = Bebas Neue (hero/section/card); UI = Barlow Condensed
+     7 tiers. Display = Bebas Neue (hero/section/card); UI = Inter
      (sub/body/label/meta). A sensible text color is baked into each tier and
      can be overridden by a Tailwind color utility (text-accent / text-cream /
      text-mute) since these live in the components layer. Never dim text with
@@ -324,7 +339,7 @@
     letter-spacing: 0.02em;
     color: var(--text-secondary);
   }
-  /* UI label — tags, nav, field labels (Barlow 600, uppercase, wide tracking).
+  /* UI label — tags, nav, field labels (Inter 600, uppercase, wide tracking).
      .label is the canonical name (used widely); .t-label is an alias. */
   .label,
   .t-label {
@@ -335,7 +350,7 @@
     letter-spacing: 0.18em;
     text-transform: uppercase;
   }
-  /* Meta — captions, step counters, eyebrows (Barlow 500, smallest tier).
+  /* Meta — captions, step counters, eyebrows (Inter 500, smallest tier).
      .label-wide is the legacy name (kept as an alias of .t-meta). */
   .label-wide,
   .t-meta {

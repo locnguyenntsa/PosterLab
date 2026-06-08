@@ -83,7 +83,7 @@ export function PhotoUpload() {
 
       {!photoUrl ? (
         <>
-          {/* Dropzone — hard dashed border, lime on drag-over, no radius */}
+          {/* Dropzone — hard dashed border, orange on drag-over, no radius */}
           <button
             type="button"
             onClick={() => inputRef.current?.click()}

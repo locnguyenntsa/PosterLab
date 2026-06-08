@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 
-/* Tracked, uppercase Barlow Condensed label. */
+/* Tracked, uppercase Inter label. */
 const Label = React.forwardRef<
   HTMLLabelElement,
   React.LabelHTMLAttributes<HTMLLabelElement>

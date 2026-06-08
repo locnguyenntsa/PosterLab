@@ -24,7 +24,7 @@ interface SelectProps {
 
 /*
   Custom listbox select — no native OS dropdown, so it matches the flat editorial
-  brand (hard edges, token colors, lime accent on the selected row). Keyboard:
+  brand (hard edges, token colors, orange accent on the selected row). Keyboard:
   Up/Down/Home/End move, Enter/Space select, Esc closes, type-ahead jumps. Closes
   on outside click. Themed via tokens, so it adapts to the light content area.
 */

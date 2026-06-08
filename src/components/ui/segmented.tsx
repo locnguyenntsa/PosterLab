@@ -6,7 +6,7 @@ export interface SegmentOption<T extends string> {
 }
 
 /*
-  Flat segmented control — square buttons, the active one filled lime. Used for
+  Flat segmented control — square buttons, the active one filled orange. Used for
   the header Guest|Admin role toggle (peer modes, not an on/off switch).
 */
 export function Segmented<T extends string>({

@@ -10,7 +10,7 @@ const STEP_LABELS: Record<number, string> = {
   6: 'Done',
 }
 
-/* Flat segmented step indicator — solid lime blocks, hard edges, no animation. */
+/* Flat segmented step indicator — solid orange blocks, hard edges, no animation. */
 export function StepIndicator({ step }: { step: StepId }) {
   if (step < 1) return null
 

@@ -14,7 +14,7 @@ const FOCUSABLE =
   'a[href],button:not([disabled]),textarea:not([disabled]),input:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])'
 
 /*
-  Flat portal modal: ink backdrop, surface panel with a lime top rule. Closes on
+  Flat portal modal: ink backdrop, surface panel with a orange top rule. Closes on
   Esc and backdrop click. Traps Tab focus inside the panel and restores focus to
   the previously-focused element on close. Body scroll is locked while open.
 */

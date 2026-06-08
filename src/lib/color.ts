@@ -1,5 +1,7 @@
 // Small color helpers for the runtime team-theme swap.
 
+import { BRAND } from '@/lib/brand'
+
 function hexToRgb(hex: string): [number, number, number] {
   const h = hex.replace('#', '')
   const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h
@@ -18,12 +20,12 @@ export function mix(a: string, b: string, amount: number): string {
   return `rgb(${r}, ${g}, ${bl})`
 }
 
-export const INK = '#0a0a0a'
+export const INK = BRAND.ink
 
 /**
  * Derive a deep, club-tinted background pair from a club's primary color.
  * We always force the app background dark (mix heavily toward ink) so cream
- * text + lime accent stay legible no matter how light the source hue is —
+ * text + orange accent stay legible no matter how light the source hue is —
  * the vivid club color itself lives on the poster, not the page chrome.
  */
 export function deepTeamColors(clubPrimary: string): {

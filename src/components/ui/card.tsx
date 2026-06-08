@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils'
 
 /*
   Flat, hard-edged card. Deeper-green surface, 1px border, no radius, no shadow.
-  Pass `accent` to add the 3px lime top bar (use sparingly — max ~one accent
+  Pass `accent` to add the 3px orange top bar (use sparingly — max ~one accent
   per screen per the system rules).
 */
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {

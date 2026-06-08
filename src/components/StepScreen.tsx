@@ -16,7 +16,7 @@ interface StepScreenProps {
 
 /*
   Step frame: a centered Bebas headline with an optional kicker + subtitle, a
-  scrollable body, and a sticky action footer with a lime top rule. The step
+  scrollable body, and a sticky action footer with a orange top rule. The step
   milestone bar is rendered persistently by App (above the animated content) so
   it stays static across step changes. Center-aligned across the whole site.
 */

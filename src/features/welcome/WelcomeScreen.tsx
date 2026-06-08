@@ -103,7 +103,7 @@ export function WelcomeScreen() {
         </span>
       </motion.div>
 
-      {/* Value props — distinct dark tiles, lime icons, lime top accent */}
+      {/* Value props — distinct dark tiles, orange icons, orange top accent */}
       <motion.div
         {...fade}
         transition={{ duration: 0.15, delay: 0.34 }}

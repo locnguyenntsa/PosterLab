@@ -19,7 +19,7 @@ const NAV: { id: AdminSection; label: string; icon: typeof LayoutGrid }[] = [
 ]
 
 /*
-  Full-height left nav: Designs / Teams with a lime active rail, plus a
+  Full-height left nav: Designs / Teams with a orange active rail, plus a
   collapse/expand toggle that shrinks it to an icon rail (default-collapsed on
   small screens). The whole rail fills the viewport height and never scrolls
   with the content — only <main> scrolls (see AdminApp).

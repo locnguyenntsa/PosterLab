@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils'
 
 /*
   Flat table primitives. Hairline rows, uppercase label headers, and a single
-  lime accent rule under the header row (the one sanctioned accent per table).
+  orange accent rule under the header row (the one sanctioned accent per table).
   Table wraps the element in a horizontally scrollable bordered frame.
 */
 export function Table({ className, ...props }: React.HTMLAttributes<HTMLTableElement>) {
@@ -16,7 +16,7 @@ export function Table({ className, ...props }: React.HTMLAttributes<HTMLTableEle
 
 export function THead({ className, ...props }: React.HTMLAttributes<HTMLTableSectionElement>) {
   // Solid dark header bar (stays dark on the light admin theme) with light text,
-  // under the single lime rule — high contrast + a clear header/body split.
+  // under the single orange rule — high contrast + a clear header/body split.
   return (
     <thead
       className={cn('border-b-2 border-accent bg-ink text-on-dark', className)}

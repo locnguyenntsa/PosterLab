@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ImagePlus, Loader2, X } from 'lucide-react'
 import type { Club, PosterTemplate } from '@/types'
+import { BRAND } from '@/lib/brand'
 import { PosterArt } from '@/components/PosterArt'
 import { Button } from '@/components/ui/button'
 import { Dialog } from '@/components/ui/dialog'
@@ -98,7 +99,7 @@ function TeamFormBody({ id }: { id: string | 'new' }) {
           sportId: SPORTS[0]?.id ?? '',
           city: '',
           shortCode: '',
-          colors: { primary: '#1a4d2e', secondary: '#143d24' },
+          colors: { primary: BRAND.primary, secondary: BRAND.secondary },
           status: 'live',
           posters: [],
           logoUrl: undefined,
@@ -115,8 +116,8 @@ function TeamFormBody({ id }: { id: string | 'new' }) {
     city: values.city,
     shortCode: (values.shortCode || 'TBD').toUpperCase(),
     colors: {
-      primary: isHex(values.colors.primary) ? values.colors.primary : '#1a4d2e',
-      secondary: isHex(values.colors.secondary) ? values.colors.secondary : '#143d24',
+      primary: isHex(values.colors.primary) ? values.colors.primary : BRAND.primary,
+      secondary: isHex(values.colors.secondary) ? values.colors.secondary : BRAND.secondary,
     },
     posters,
   }
@@ -291,7 +292,7 @@ function ColorField({
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="#1a4d2e"
+          placeholder={BRAND.primary}
           aria-invalid={!!error}
         />
       </div>

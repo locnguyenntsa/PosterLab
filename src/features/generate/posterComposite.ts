@@ -1,4 +1,5 @@
 import type { Club, PosterTemplate } from '@/types'
+import { BRAND, BRAND_FONTS } from '@/lib/brand'
 
 /**
  * ── RENDER-ENGINE SEAM ──────────────────────────────────────────────────────
@@ -12,7 +13,7 @@ import type { Club, PosterTemplate } from '@/types'
  * an image URL) stays identical, so PosterGeneration.tsx won't need rework.
  *
  * FLAT editorial render: solid fillRect color blocks only, hard photo placement,
- * a solid lime accent rectangle, big Bebas Neue UPPERCASE club name, a tracked
+ * a solid orange accent rectangle, big Bebas Neue UPPERCASE club name, a tracked
  * "OFFICIAL POSTER" label, and the shortCode in a hard square. Zero gradients,
  * zero shadows, zero rounded corners — a Nike / EA-Sports editorial poster.
  * ────────────────────────────────────────────────────────────────────────────
@@ -21,9 +22,10 @@ import type { Club, PosterTemplate } from '@/types'
 const W = 1200
 const H = 1600
 
-const INK = '#0a0a0a'
-const CREAM = '#f0ebe0'
-const ACCENT = '#c8f000'
+// Brand chrome colors for the poster (independent of the per-club colors below).
+const INK = BRAND.ink
+const CREAM = BRAND.cream
+const ACCENT = BRAND.accent
 
 function loadImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -113,7 +115,7 @@ export async function compositePoster({
 
   paintBackground(ctx, club, template)
 
-  // Lime accent rectangle — single sparing accent, a hard top stripe.
+  // orange accent rectangle — single sparing accent, a hard top stripe.
   ctx.fillStyle = ACCENT
   ctx.fillRect(0, 0, W, 14)
 
@@ -141,7 +143,7 @@ export async function compositePoster({
   ctx.fillStyle = CREAM
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.font = `400 ${Math.round(sq * 0.5)}px 'Bebas Neue', sans-serif`
+  ctx.font = `400 ${Math.round(sq * 0.5)}px ${BRAND_FONTS.display}`
   ctx.fillText(club.shortCode.toUpperCase(), sq / 2, barY + sq / 2)
 
   // Club name — big Bebas Neue UPPERCASE, left-aligned next to the square.
@@ -150,17 +152,18 @@ export async function compositePoster({
   ctx.textAlign = 'left'
   ctx.textBaseline = 'alphabetic'
   let fontSize = 130
-  ctx.font = `400 ${fontSize}px 'Bebas Neue', sans-serif`
+  ctx.font = `400 ${fontSize}px ${BRAND_FONTS.display}`
   const name = club.name.toUpperCase()
   while (ctx.measureText(name).width > W - textX - 40 && fontSize > 48) {
     fontSize -= 4
-    ctx.font = `400 ${fontSize}px 'Bebas Neue', sans-serif`
+    ctx.font = `400 ${fontSize}px ${BRAND_FONTS.display}`
   }
   ctx.fillText(name, textX, barY + barH * 0.6)
 
   // "OFFICIAL POSTER" label — tracked, muted, under the name.
-  ctx.fillStyle = 'rgba(240, 235, 224, 0.5)'
-  ctx.font = `700 24px 'Barlow Condensed', system-ui, sans-serif`
+  // (cream @ 50% — keep the RGB in sync with BRAND.cream on a rebrand)
+  ctx.fillStyle = 'rgba(244, 244, 245, 0.5)'
+  ctx.font = `700 24px ${BRAND_FONTS.ui}`
   ctx.fillText(letterspace('OFFICIAL POSTER'), textX, barY + barH * 0.82)
 
   return canvas.toDataURL('image/png')

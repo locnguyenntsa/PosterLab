@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 
-/* Flat OnePact wordmark: hard lime monogram block + Bebas wordmark. */
+/* Flat OnePact wordmark: hard orange monogram block + Bebas wordmark. */
 export function Logo({ className }: { className?: string }) {
   return (
     <div className={cn('flex items-center gap-2.5 select-none', className)}>

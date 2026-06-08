@@ -23,7 +23,7 @@ interface PosterArtProps {
  *  features/generate/posterComposite.ts — this component is the lightweight
  *  preview/thumbnail counterpart.)
  *
- * FLAT editorial: solid club-color blocks, hard photo rectangle, lime accent
+ * FLAT editorial: solid club-color blocks, hard photo rectangle, orange accent
  * stripe, name on a solid ink bar, shortCode in a hard square. Zero gradients,
  * zero shadows, zero rounded corners. template.style varies the block layout.
  */
@@ -37,7 +37,7 @@ export function PosterArt({
 }: PosterArtProps) {
   const { primary, secondary } = club.colors
 
-  // Real poster image takes over the whole card (with a lime brand stripe and
+  // Real poster image takes over the whole card (with a orange brand stripe and
   // a subtle hover zoom). Used for the home showcase fan.
   if (image) {
     return (
@@ -90,7 +90,7 @@ export function PosterArt({
         style={{ background: secondary }}
       />
 
-      {/* Lime accent stripe — single sparing accent */}
+      {/* orange accent stripe — single sparing accent */}
       {accentLeftRail ? (
         <div className="absolute inset-y-0 left-0 w-[6px] bg-accent" />
       ) : (

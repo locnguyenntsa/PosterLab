@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 /* Shared admin page header: big Bebas title + item count, optional filters and
-   a primary "+ New …" action (the one lime CTA per page). */
+   a primary "+ New …" action (the one orange CTA per page). */
 export function PageHeader({
   title,
   count,

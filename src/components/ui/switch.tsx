@@ -31,7 +31,7 @@ export function Switch({
       )}
     >
       {/* Knob color contrasts the track in every theme/state:
-          on  → ink on the lime track (brand lime+ink pairing, high contrast)
+          on  → ink on the orange track (brand orange+ink pairing, high contrast)
           off → cream, which is light on the dark off-track (dark theme) and
                 dark on the gray off-track (light theme). */}
       <span

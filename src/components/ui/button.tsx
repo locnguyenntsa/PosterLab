@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 /*
   Skewed parallelogram buttons. Bebas Neue, italic, uppercase. Flat fills,
   no radius, no shadow, hard-cut hover (brightness only, <150ms).
-  - default   → lime fill, ink text (primary CTA — use sparingly)
+  - default   → orange fill, ink text (primary CTA — use sparingly)
   - secondary → ink fill, cream text, cream outline
   - outline   → transparent, cream outline
   - ghost     → transparent, no skew (used for the header back/icon)

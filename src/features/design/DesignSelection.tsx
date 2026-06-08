@@ -79,7 +79,7 @@ export function DesignSelection() {
         ) : undefined
       }
     >
-      {/* Breadcrumb — flat, uppercase; current crumb is bold + lime */}
+      {/* Breadcrumb — flat, uppercase; current crumb is bold + orange */}
       <div className="mb-9 flex flex-wrap items-center justify-center gap-x-2 gap-y-2 border-b border-line pb-5">
         {crumbs.map((c, i) => {
           const reachable = i === 0 || crumbs[i - 1].done

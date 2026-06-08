@@ -33,8 +33,8 @@ export const teamSchema = z.object({
     .max(5, 'At most 5 characters')
     .regex(/^[A-Za-z0-9]+$/, 'Letters and numbers only'),
   colors: z.object({
-    primary: z.string().regex(HEX, 'Use a hex color like #1a4d2e'),
-    secondary: z.string().regex(HEX, 'Use a hex color like #143d24'),
+    primary: z.string().regex(HEX, 'Use a hex color like #121317'),
+    secondary: z.string().regex(HEX, 'Use a hex color like #1a1920'),
   }),
   status: z.enum(['live', 'draft']),
   posters: z.array(z.string()).optional(),
