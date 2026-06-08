@@ -1,0 +1,369 @@
+@import 'tailwindcss';
+
+/*
+  ───────────────────────────────────────────────────────────────────────────
+  ONEPACT — FLAT EDITORIAL SPORTS UI SYSTEM  (placeholder brand v1.0)
+  Flat. Zero gradients. Zero drop shadows. Zero border-radius. Hard geometry.
+  Display: Bebas Neue (uppercase). UI/body: Barlow Condensed.
+  Accent (electric lime) is used sparingly — CTAs and one rule per screen.
+
+  Brand colors are PLACEHOLDERS — swap --c-primary / --c-secondary / --c-accent
+  when the client confirms. Team selection re-tints --c-primary/--c-secondary
+  at runtime (see src/lib/teamTheme.ts) with a HARD cut (no transition).
+  ───────────────────────────────────────────────────────────────────────────
+*/
+
+:root {
+  /* === PLACEHOLDER — swap when client confirms === */
+  --c-primary: #1a4d2e; /* dark forest green — app background */
+  --c-secondary: #143d24; /* deeper green — surfaces / depth */
+  --c-accent: #c8f000; /* electric lime — CTA only, use sparingly */
+  --c-ink: #0a0a0a; /* near-black — text on lime, secondary btn bg */
+  --c-text-main: #f0ebe0; /* primary text — main readable content */
+  --c-text-mute: #a8b8a0; /* secondary text — supporting copy / captions (SOLID, no opacity hack) */
+  --c-border: rgba(240, 235, 224, 0.14);
+  --c-pattern: rgba(240, 235, 224, 0.06); /* logotext overlay opacity */
+
+  /* Flat semantic signals (coach feedback) — solid blocks, no soft tints */
+  --c-warn: #f2b705;
+  --c-danger: #ff4438;
+
+  /* Text that always sits on a DARK/colored fill (badges, secondary/danger
+     buttons, poster name bars, menus, toasts). Stays light even when the page
+     theme is light — so those elements keep their light-on-dark contrast. */
+  --c-on-dark: #f0ebe0;
+  /* Input/field background — dark-translucent on the dark theme, white on light. */
+  --c-field: rgb(10 10 10 / 0.3);
+
+  /* ── TYPE SCALE — 7 tiers, min 13px in UI ──────────────────────────────
+     Display tiers (hero/section/card) scale down on small screens via clamp,
+     reaching the desktop target at the top of the range. UI tiers are fixed. */
+  --text-hero: clamp(3.5rem, 10vw, 6rem); /* → 96px — page hero only */
+  --text-section: clamp(2.5rem, 6.5vw, 4rem); /* → 64px — section / step headings */
+  --text-card: clamp(1.875rem, 3vw, 2.5rem); /* → 40px — card / feature titles */
+  --text-sub: 1.5rem; /* 24px — subheadings (Barlow 700) */
+  --text-body: 1.125rem; /* 18px — body copy (Barlow 400) */
+  --text-label: 0.875rem; /* 14px — tags, nav, UI labels (Barlow 600) */
+  --text-meta: 0.8125rem; /* 13px — captions, step counters (Barlow 500) */
+
+  /* ── TEXT COLOR — 4 levels, never dim text with opacity ───────────────── */
+  --text-primary: #f0ebe0; /* main readable content */
+  --text-secondary: #a8b8a0; /* supporting copy, descriptions, captions */
+  --text-accent: #c8f000; /* step numbers, tags, highlighted labels */
+  --text-ghost: rgba(240, 235, 224, 0.3); /* BG pattern only — never for readable text */
+}
+
+/*
+  ── ADMIN LIGHT THEME ────────────────────────────────────────────────────────
+  The admin back-office is a separate zone that flips to a LIGHT palette for
+  data-heavy readability. Applied by toggling `admin-theme` on <html> while the
+  admin app is mounted (so portaled dialogs/toasts under <body> inherit it too).
+  Only background / surface / text / border / field tokens flip; --c-ink (dark
+  chips/menus), --c-accent (lime) and --c-on-dark (light text on those) stay put,
+  so badges, dropdowns, toasts and poster previews keep their intended contrast.
+*/
+:root.admin-theme {
+  --c-primary: #eef3ec; /* page / app background — very light green */
+  --c-secondary: #ffffff; /* panels / surfaces — white */
+  --c-text-main: #16241d; /* primary text — dark green ink */
+  --c-text-mute: #5d6e64; /* secondary text */
+  --c-border: rgba(20, 40, 30, 0.14); /* hairline on light */
+  --c-field: #ffffff; /* white inputs */
+
+  /* The .t-* type tiers bake these in directly — flip them to dark too. */
+  --text-primary: #16241d;
+  --text-secondary: #5d6e64;
+}
+
+/*
+  Tighter label/meta tracking inside the admin back-office. The guest tunnel
+  keeps the wide editorial tracking (0.18em); admin labels/headers read denser
+  and clearer at 0.08em — especially multi-word field titles.
+  Scoped to `admin-active` (set on <html> whenever admin is mounted, in BOTH
+  light and dark themes — including dialogs/toasts portaled to <body>) so the
+  tracking is identical in light and dark mode.
+*/
+:root.admin-active .label,
+:root.admin-active .t-label,
+:root.admin-active .label-wide,
+:root.admin-active .t-meta {
+  letter-spacing: 0.08em;
+}
+
+/*
+  Re-assert the dark GREEN brand palette for a subtree, regardless of the light
+  admin theme above. Used on the admin top bar + sidebar so the chrome stays
+  green (matching the guest brand) while the content area + modals are light.
+  These mirror the :root defaults — keep them in sync if the brand palette moves.
+*/
+.chrome-dark {
+  --c-primary: #1a4d2e;
+  --c-secondary: #143d24;
+  --c-text-main: #f0ebe0;
+  --c-text-mute: #a8b8a0;
+  --c-border: rgba(240, 235, 224, 0.14);
+  --c-field: rgb(10 10 10 / 0.3);
+  --text-primary: #f0ebe0;
+  --text-secondary: #a8b8a0;
+}
+
+@theme inline {
+  /* Map design tokens → Tailwind color utilities (bg-*, text-*, border-*) */
+  --color-bg: var(--c-primary);
+  --color-primary: var(--c-primary);
+  --color-surface: var(--c-secondary);
+  --color-secondary: var(--c-secondary);
+  --color-accent: var(--c-accent);
+  --color-ink: var(--c-ink);
+  --color-cream: var(--c-text-main);
+  --color-mute: var(--c-text-mute);
+  --color-line: var(--c-border);
+  --color-warn: var(--c-warn);
+  --color-danger: var(--c-danger);
+  --color-on-dark: var(--c-on-dark);
+
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-ui: 'Barlow Condensed', system-ui, sans-serif;
+
+  /* Everything is hard-edged */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+}
+
+@layer base {
+  * {
+    border-color: var(--c-border);
+    border-radius: 0; /* hard geometry everywhere */
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100svh;
+    background-color: var(--c-primary);
+    color: var(--text-primary);
+    font-family: var(--font-ui);
+    font-weight: 400; /* body tier default; labels/headings set their own weight */
+    font-size: var(--text-body);
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 0.92;
+    margin: 0;
+  }
+
+  ::selection {
+    background: var(--c-accent);
+    color: var(--c-ink);
+  }
+
+  input::placeholder {
+    color: var(--c-text-mute);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  /* Hide number-input spinners */
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+@layer components {
+  /*
+    BACKGROUND MONOGRAM PATTERN
+    Rendered by <PatternBG/> as a fixed, full-viewport layer behind all content.
+    A rotated wall of the brand monogram ("1P", or the selected club's code)
+    tiled in rows. ADJACENT ROWS SCROLL IN OPPOSITE DIRECTIONS — each row is a
+    seamless infinite marquee (two identical halves; translateX 0 ↔ -50%).
+    Tone-on-tone via an `overlay` blend so it adapts to the runtime team-color
+    swap. Transform-only (GPU-composited); paused for reduced motion.
+  */
+  .bgp-stage {
+    position: absolute;
+    inset: -25%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: clamp(84px, 12vw, 172px);
+    transform: rotate(-10deg);
+    transform-origin: center;
+    mix-blend-mode: overlay;
+    contain: layout paint style;
+  }
+  .bgp-row {
+    display: flex;
+    width: max-content;
+    flex: 0 0 auto;
+    will-change: transform;
+  }
+  .bgp-row > span {
+    font-family: var(--font-display);
+    /* Tight leading so consecutive rows pack with no green gap between lines. */
+    line-height: 0.75;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    /* Engraved / outlined letterforms (matches Figma BG): hollow fill, a dark
+       edge stroke and a faint highlight below — all alpha-based + overlay blend
+       so it stays tone-on-tone and adapts to the runtime team-color swap. */
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
+    text-shadow: 0 0px 0 rgba(0, 0, 0, 0.05);
+    user-select: none;
+  }
+  /* Even rows drift left, odd rows drift right (opposite directions). */
+  .bgp-row.is-ltr {
+    animation: bgp-left var(--dur, 42s) linear infinite;
+  }
+  .bgp-row.is-rtl {
+    animation: bgp-right var(--dur, 42s) linear infinite;
+  }
+  @keyframes bgp-left {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes bgp-right {
+    from {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bgp-row {
+      animation: none;
+    }
+    .bgp-row.is-rtl {
+      transform: translateX(-50%); /* keep rows offset so it still reads as tiled */
+    }
+  }
+
+  /* Flat divider */
+  .rule {
+    border: none;
+    border-top: 3px solid var(--c-accent);
+    margin: 0;
+  }
+
+  /* ── TYPE SCALE TIERS ──────────────────────────────────────────────────
+     7 tiers. Display = Bebas Neue (hero/section/card); UI = Barlow Condensed
+     (sub/body/label/meta). A sensible text color is baked into each tier and
+     can be overridden by a Tailwind color utility (text-accent / text-cream /
+     text-mute) since these live in the components layer. Never dim text with
+     opacity — use text-mute (secondary) instead. Apply ONE tier per element
+     and let it own the size; don't pair with ad-hoc text-* size utilities. */
+
+  .t-hero {
+    font-family: var(--font-display);
+    font-size: var(--text-hero);
+    font-weight: 400;
+    line-height: 0.86;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+  .t-section {
+    font-family: var(--font-display);
+    font-size: var(--text-section);
+    font-weight: 400;
+    line-height: 0.9;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+  .t-card {
+    font-family: var(--font-display);
+    font-size: var(--text-card);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+  .t-sub {
+    font-family: var(--font-ui);
+    font-size: var(--text-sub);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: 0.08em;
+    color: var(--text-primary);
+  }
+  .t-body {
+    font-family: var(--font-ui);
+    font-size: var(--text-body);
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+    color: var(--text-secondary);
+  }
+  /* UI label — tags, nav, field labels (Barlow 600, uppercase, wide tracking).
+     .label is the canonical name (used widely); .t-label is an alias. */
+  .label,
+  .t-label {
+    font-family: var(--font-ui);
+    font-size: var(--text-label);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  /* Meta — captions, step counters, eyebrows (Barlow 500, smallest tier).
+     .label-wide is the legacy name (kept as an alias of .t-meta). */
+  .label-wide,
+  .t-meta {
+    font-family: var(--font-ui);
+    font-size: var(--text-meta);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  /* Help / caption — small SENTENCE-CASE supporting copy (field descriptions,
+     switch hints). Mixed case + normal tracking for readability — unlike the
+     label/meta tiers, this is NOT uppercase. Floor of 14px so descriptions
+     never read smaller than that. */
+  .t-help {
+    font-family: var(--font-ui);
+    font-size: 0.875rem; /* 14px — minimum description size */
+    font-weight: 400;
+    line-height: 1.45;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    color: var(--text-secondary);
+  }
+}
+
+@layer utilities {
+  /* Display family marker — Bebas, uppercase, tight. For decorative/brand use
+     (logo, poster art) where a tier class isn't appropriate. UI headings should
+     use the .t-* type-scale tiers instead. */
+  .font-display {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 0.9;
+    font-weight: 400;
+  }
+  /* Skewed parallelogram buttons. Skew the whole box so a real border hugs the
+     slanted sides cleanly, then counter-skew the label so the text stays upright. */
+  .skew-btn {
+    transform: skewX(-11deg);
+  }
+  .skew-btn > .skew-btn-label {
+    transform: skewX(11deg);
+  }
+}
