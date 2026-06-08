@@ -200,11 +200,16 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
     font-size: clamp(84px, 12vw, 172px);
     transform: rotate(-10deg);
     transform-origin: center;
     mix-blend-mode: overlay;
-    contain: layout paint style;
+    /* No `paint` containment: each row is far wider/taller than the stage and
+       must overflow it (centered) to cover the rotated viewport on every side —
+       the fixed parent does the clipping. Paint-clipping here re-introduced the
+       corner gap. */
+    contain: layout style;
   }
   .bgp-row {
     display: flex;
@@ -233,14 +238,23 @@
   .bgp-row.is-rtl {
     animation: bgp-right var(--dur, 42s) linear infinite;
   }
+  /* Rows are centered and 2x the half-width wide; drifting ±25% (= one half)
+     keeps the seamless loop while always overflowing the viewport on BOTH sides,
+     so the rotated wall never reveals a gap regardless of the club code length. */
   @keyframes bgp-left {
+    from {
+      transform: translateX(25%);
+    }
     to {
-      transform: translateX(-50%);
+      transform: translateX(-25%);
     }
   }
   @keyframes bgp-right {
     from {
-      transform: translateX(-50%);
+      transform: translateX(-25%);
+    }
+    to {
+      transform: translateX(25%);
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -248,7 +262,7 @@
       animation: none;
     }
     .bgp-row.is-rtl {
-      transform: translateX(-50%); /* keep rows offset so it still reads as tiled */
+      transform: translateX(-25%); /* keep rows offset so it still reads as tiled */
     }
   }
 
