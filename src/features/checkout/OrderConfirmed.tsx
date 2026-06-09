@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Check, Hash, Mail, Package, RotateCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { CopyButton } from '@/components/ui/copy-button'
 import { useFlowStore } from '@/store/useFlowStore'
 
 const fade = {
@@ -73,6 +74,7 @@ export function OrderConfirmed() {
                 {orderNumber}
               </p>
             </div>
+            <CopyButton value={orderNumber} label="Copy order number" />
           </div>
         )}
         <div className="flex items-center gap-3 bg-surface px-4 py-3">
