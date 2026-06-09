@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Stray reference screenshots dropped in the repo root (not part of the app)
+/image *.png
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
