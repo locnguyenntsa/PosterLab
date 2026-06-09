@@ -25,8 +25,11 @@
   --brand-secondary: #1a1920; /* Surface — cards / panels */
   --brand-text: #f4f4f5; /* Texte — primary readable content */
   --brand-mute: #9a90a6; /* Muted — supporting copy / captions */
-  --brand-border: #2a2b31; /* Line — hairline borders */
-  --brand-field: #212229; /* Surface 2 — elevated wells / inputs */
+  /* Hairlines & input wells are ADAPTIVE (translucent light over the bg), not a
+     fixed hex — so they keep a visible ~3:1 edge on the runtime team-color tint
+     (deepTeamColors), not just on the Base. On Base this reads ≈ Line #2a2b31. */
+  --brand-border: rgba(244, 244, 245, 0.14); /* Line — adaptive hairline */
+  --brand-field: rgba(244, 244, 245, 0.06); /* Surface 2 — adaptive input well */
 
   /* Active theme tokens (guest = brand dark). Derived from --brand-* so a
      rebrand touches the block above, not these. */
@@ -39,7 +42,10 @@
   --c-border: var(--brand-border);
   --c-pattern: rgba(244, 244, 245, 0.06); /* logotext overlay opacity (tint of brand-text) */
 
-  /* Flat semantic signals (coach feedback) — solid blocks, no soft tints */
+  /* Flat semantic signals (coach feedback, status) — solid blocks, no soft tints.
+     SUCCESS is GREEN, kept distinct from the brand Orange accent so pass / checked
+     / done states never read as a warning or error. (Orange = brand / CTA only.) */
+  --c-success: #16a34a; /* pass / checked / done / live */
   --c-warn: #f2b705;
   --c-danger: #ff4438;
 
@@ -133,6 +139,7 @@
   --color-cream: var(--c-text-main);
   --color-mute: var(--c-text-mute);
   --color-line: var(--c-border);
+  --color-success: var(--c-success);
   --color-warn: var(--c-warn);
   --color-danger: var(--c-danger);
   --color-on-dark: var(--c-on-dark);

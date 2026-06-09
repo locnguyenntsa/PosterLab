@@ -4,7 +4,7 @@ import type { CoachCheck, CoachResult } from '@/types'
 import { cn } from '@/lib/utils'
 
 const STATUS_STYLE = {
-  pass: { Icon: CheckCircle2, block: 'bg-accent text-ink' },
+  pass: { Icon: CheckCircle2, block: 'bg-success text-ink' },
   warn: { Icon: AlertTriangle, block: 'bg-warn text-ink' },
   fail: { Icon: XCircle, block: 'bg-danger text-cream' },
   skipped: { Icon: MinusCircle, block: 'bg-surface text-mute border border-line' },
@@ -36,7 +36,7 @@ export function CoachFeedback({ result }: { result: CoachResult }) {
       <div className="mb-2 flex items-center justify-between">
         <p className="label-wide text-mute">Photo Coach</p>
         {result.passed ? (
-          <span className="bg-accent px-2 py-0.5 label text-ink">
+          <span className="bg-success px-2 py-0.5 label text-ink">
             Looks Great
           </span>
         ) : (

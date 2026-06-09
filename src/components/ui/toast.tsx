@@ -7,12 +7,12 @@ import { cn } from '@/lib/utils'
 
 const ICONS = { success: CheckCircle2, danger: AlertTriangle, info: Info }
 const BORDER: Record<ToastVariant, string> = {
-  success: 'border-l-accent',
+  success: 'border-l-success',
   danger: 'border-l-danger',
   info: 'border-l-cream',
 }
 const ICON_COLOR: Record<ToastVariant, string> = {
-  success: 'text-accent',
+  success: 'text-success',
   danger: 'text-danger',
   info: 'text-on-dark',
 }

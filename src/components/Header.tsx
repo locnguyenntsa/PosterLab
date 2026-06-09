@@ -27,7 +27,7 @@ export function Header({ step }: { step: StepId }) {
         <div className="flex min-w-0 items-center gap-2">
           {showBack && (
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={back}
               aria-label="Go back"

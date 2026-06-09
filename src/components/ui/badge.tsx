@@ -16,7 +16,7 @@ const badgeVariants = cva(
         default: 'bg-accent text-ink',
         ink: 'bg-ink text-on-dark',
         outline: 'border border-line text-mute',
-        success: 'bg-accent text-ink',
+        success: 'bg-success text-ink',
         warning: 'bg-warn text-ink',
         danger: 'bg-danger text-on-dark',
       },

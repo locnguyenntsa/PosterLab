@@ -9,12 +9,18 @@ import { deepTeamColors } from '@/lib/color'
  */
 export function applyTeamTheme(club: Club | null) {
   const root = document.documentElement
+  // --c-text-mute backs the `text-mute` utility; --text-secondary backs the
+  // .t-body / .t-help type tiers — both carry secondary copy, so both track the
+  // tint-aware mute to hold WCAG-AA contrast on bright club pages.
   if (!club) {
-    root.style.removeProperty('--c-primary')
-    root.style.removeProperty('--c-secondary')
+    for (const v of ['--c-primary', '--c-secondary', '--c-text-mute', '--text-secondary']) {
+      root.style.removeProperty(v)
+    }
     return
   }
-  const { primary, secondary } = deepTeamColors(club.colors.primary)
+  const { primary, secondary, mute } = deepTeamColors(club.colors.primary)
   root.style.setProperty('--c-primary', primary)
   root.style.setProperty('--c-secondary', secondary)
+  root.style.setProperty('--c-text-mute', mute)
+  root.style.setProperty('--text-secondary', mute)
 }

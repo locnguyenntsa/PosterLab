@@ -19,11 +19,11 @@ export function OrderConfirmed() {
 
   return (
     <div className="mx-auto flex min-h-[calc(100svh-4rem)] w-full max-w-3xl flex-col items-center px-5 py-16 text-center sm:px-10">
-      {/* Hard orange square + outline check — bold flat confirmation, no glow */}
+      {/* Hard GREEN square + outline check — success confirmation (not brand orange) */}
       <motion.div
         {...fade}
         transition={{ duration: 0.12 }}
-        className="grid size-16 place-items-center bg-accent text-ink"
+        className="grid size-16 place-items-center bg-success text-ink"
       >
         <Check className="size-9" strokeWidth={1.5} />
       </motion.div>
