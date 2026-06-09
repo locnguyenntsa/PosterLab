@@ -32,10 +32,13 @@ export function GuestApp() {
   const clubId = useFlowStore((s) => s.clubId)
   const Screen = SCREENS[step]
 
-  // Hard-cut the app background to the selected club's deep color tint.
+  // Hard-cut the app background to the selected club's deep color tint — EXCEPT
+  // on the final confirmation (step 6). That success screen drops the club tint
+  // back to the neutral default-dark brand, so a warm club color (red/orange)
+  // never makes the "Order Confirmed" page read like an error.
   useEffect(() => {
-    applyTeamTheme(findTeam(clubId) ?? null)
-  }, [clubId])
+    applyTeamTheme(step === 6 ? null : (findTeam(clubId) ?? null))
+  }, [clubId, step])
 
   // Every step change starts at the top of the new screen.
   useEffect(() => {
