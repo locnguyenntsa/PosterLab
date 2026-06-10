@@ -21,6 +21,9 @@ export function Field({
   className?: string
   children: React.ReactNode
 }) {
+  // Tie the error to its control (aria-describedby) and announce it on appear
+  // (role="alert") — the control gets `aria-describedby={`${htmlFor}-error`}`.
+  const errorId = htmlFor && error ? `${htmlFor}-error` : undefined
   return (
     <div className={cn('space-y-2', className)}>
       <div className="flex items-baseline justify-between gap-2">
@@ -28,7 +31,11 @@ export function Field({
         {hint && <span className="t-meta text-mute">{hint}</span>}
       </div>
       {children}
-      {error && <p className="label text-danger">{error}</p>}
+      {error && (
+        <p id={errorId} role="alert" className="label text-danger">
+          {error}
+        </p>
+      )}
     </div>
   )
 }

@@ -5,10 +5,10 @@ import { create } from 'zustand'
   modal (if any) is open. NOT persisted — re-entering admin always lands on the
   Designs page with no modal open. Catalog data lives in useCatalogStore.
 */
-export type AdminSection = 'designs' | 'teams'
+export type AdminSection = 'designs' | 'teams' | 'admins'
 
 export type DeleteTarget = {
-  kind: 'design' | 'team'
+  kind: 'design' | 'team' | 'admin'
   id: string
   name: string
 }
@@ -26,6 +26,8 @@ interface AdminState {
   designEdit: string | 'new' | null
   /** Open team editor: an id to edit, 'new' to create, or null when closed. */
   teamEdit: string | 'new' | null
+  /** Open admin-account editor: an id to edit, 'new' to create, or null when closed. */
+  adminEdit: string | 'new' | null
   /** Pending delete confirmation, or null. */
   confirmDelete: DeleteTarget | null
 
@@ -33,6 +35,8 @@ interface AdminState {
   closeDesign: () => void
   openTeam: (id: string | 'new') => void
   closeTeam: () => void
+  openAdmin: (id: string | 'new') => void
+  closeAdmin: () => void
   askDelete: (kind: DeleteTarget['kind'], id: string, name: string) => void
   cancelDelete: () => void
 }
@@ -51,12 +55,15 @@ export const useAdminStore = create<AdminState>((set) => ({
 
   designEdit: null,
   teamEdit: null,
+  adminEdit: null,
   confirmDelete: null,
 
   openDesign: (id) => set({ designEdit: id }),
   closeDesign: () => set({ designEdit: null }),
   openTeam: (id) => set({ teamEdit: id }),
   closeTeam: () => set({ teamEdit: null }),
+  openAdmin: (id) => set({ adminEdit: id }),
+  closeAdmin: () => set({ adminEdit: null }),
   askDelete: (kind, id, name) => set({ confirmDelete: { kind, id, name } }),
   cancelDelete: () => set({ confirmDelete: null }),
 }))

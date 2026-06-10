@@ -1,6 +1,7 @@
 import {
   LayoutGrid,
   Users,
+  ShieldCheck,
   ArrowLeft,
   RotateCcw,
   PanelLeftClose,
@@ -16,6 +17,7 @@ import { cn } from '@/lib/utils'
 const NAV: { id: AdminSection; label: string; icon: typeof LayoutGrid }[] = [
   { id: 'designs', label: 'Designs', icon: LayoutGrid },
   { id: 'teams', label: 'Teams', icon: Users },
+  { id: 'admins', label: 'Admins', icon: ShieldCheck },
 ]
 
 /*

@@ -9,6 +9,8 @@ import { DesignsAdmin } from '@/features/admin/designs/DesignsAdmin'
 import { DesignForm } from '@/features/admin/designs/DesignForm'
 import { TeamsAdmin } from '@/features/admin/teams/TeamsAdmin'
 import { TeamForm } from '@/features/admin/teams/TeamForm'
+import { AdminsAdmin } from '@/features/admin/admins/AdminsAdmin'
+import { AdminForm } from '@/features/admin/admins/AdminForm'
 
 /*
   Admin back-office shell: a sidebar dashboard that REUSES OnePact's tokens and
@@ -49,7 +51,13 @@ export function AdminApp() {
         <AdminSidebar />
         <main className="min-w-0 flex-1 overflow-y-auto px-5 py-8 sm:px-8">
           <div className="mx-auto w-full max-w-6xl">
-            {section === 'designs' ? <DesignsAdmin /> : <TeamsAdmin />}
+            {section === 'designs' ? (
+              <DesignsAdmin />
+            ) : section === 'teams' ? (
+              <TeamsAdmin />
+            ) : (
+              <AdminsAdmin />
+            )}
           </div>
         </main>
       </div>
@@ -57,6 +65,7 @@ export function AdminApp() {
       {/* CRUD modals + delete confirmation (each controls its own open state) */}
       <DesignForm />
       <TeamForm />
+      <AdminForm />
       <AdminDeleteConfirm />
     </div>
   )

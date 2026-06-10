@@ -21,11 +21,13 @@ const ROWS = 40
 // stage on large screens, so the -50% loop never reveals a gap.
 const TOKENS = 28
 
-export function PatternBG() {
+export function PatternBG({ token: tokenOverride }: { token?: string } = {}) {
   const clubId = useFlowStore((s) => s.clubId)
   const teams = useTeams()
   const club = teams.find((c) => c.id === clubId)
-  const token = club?.shortCode ?? '1P'
+  // Callers outside the guest tunnel (e.g. the admin login) can force the brand
+  // monogram so a leftover in-session clubId never tiles a stale club code.
+  const token = tokenOverride ?? club?.shortCode ?? '1P'
   // No inter-token space → letters pack tightly (denser, matches Figma).
   const half = `${token}`.repeat(TOKENS)
 

@@ -2,13 +2,23 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 /*
-  App mode. The role is orthogonal to the guest tunnel state (useFlowStore) and
-  must survive a tunnel reset — so it lives in its own small, persisted store.
-  Demo only: there is NO real auth. The header toggle flips this value.
+  App mode + admin session. `role` is orthogonal to the guest tunnel state
+  (useFlowStore) and is derived from the URL on every load (see roleFromPath) —
+  the /admin link is the source of truth for which zone opens. The admin
+  back-office is then gated by `isAdminAuthed`, a persisted demo sign-in flag
+  (the session lasts until the explicit Sign out — see DEMO_ADMIN below).
 */
 export type Role = 'guest' | 'admin'
 
 const ADMIN_PATH = '/admin'
+
+/*
+  Demo-only admin gate — a front-end seam, like the simulated Stripe and AI-render
+  steps. There is NO backend and (by request) NO credential check: any input
+  unlocks the back-office, and the "signed-in" flag is just persisted in
+  localStorage. When the back-office gets a server, replace `login` with a real
+  POST /login (returning a token) and stop persisting `isAdminAuthed`.
+*/
 
 /**
  * The URL decides which zone opens, so the demo can be shared as two clean links:
@@ -28,25 +38,39 @@ export function pathForRole(role: Role): string {
 
 interface AuthState {
   role: Role
+  /** Whether the admin back-office has been unlocked (demo gate — see DEMO_ADMIN). */
+  isAdminAuthed: boolean
   setRole: (role: Role) => void
   toggle: () => void
+  /** Unlock the back-office (demo gate — accepts any input). */
+  login: () => void
+  /** Lock the back-office again (returns the /admin zone to the login screen). */
+  logout: () => void
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       role: roleFromPath(),
+      isAdminAuthed: false,
       setRole: (role) => set({ role }),
       toggle: () => set((s) => ({ role: s.role === 'admin' ? 'guest' : 'admin' })),
+      login: () => set({ isAdminAuthed: true }),
+      logout: () => set({ isAdminAuthed: false }),
     }),
     {
       name: 'onepact-auth',
-      // A shared /admin link must always open the back-office, even if a previous
-      // visit on this browser persisted a different role — so the URL wins on load.
+      // Only the sign-in flag is worth persisting; `role` is always re-derived
+      // from the URL in merge() below, so storing it would be dead weight.
+      partialize: (s) => ({ isAdminAuthed: s.isAdminAuthed }),
+      // A shared /admin link must always open the back-office zone (the URL wins
+      // on load); the gate then decides whether to show the dashboard. The
+      // sign-in flag is coerced to a strict boolean so a malformed/stale
+      // localStorage payload can never accidentally unlock the back-office.
       merge: (persisted, current) => ({
         ...current,
-        ...(persisted as Partial<AuthState>),
         role: roleFromPath(),
+        isAdminAuthed: (persisted as Partial<AuthState> | undefined)?.isAdminAuthed === true,
       }),
     },
   ),

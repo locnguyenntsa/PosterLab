@@ -1,7 +1,6 @@
 import { ArrowLeft } from 'lucide-react'
 import { Logo } from '@/components/Logo'
 import { Button } from '@/components/ui/button'
-import { RoleToggle } from '@/components/RoleToggle'
 import { useFlowStore } from '@/store/useFlowStore'
 import { useScrollEdges } from '@/lib/useScrollEdges'
 import { cn } from '@/lib/utils'
@@ -21,9 +20,8 @@ export function Header({ step }: { step: StepId }) {
         !atTop && 'shadow-[0_10px_30px_-4px_rgba(0,0,0,0.7)]',
       )}
     >
-      {/* Logo pinned left, role toggle pinned right (back tucks in on inner steps). */}
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-3 px-5 sm:px-10">
-        {/* Left — back (inner steps) + logo (click = home) */}
+      {/* Back (inner steps) tucks in left of the logo. */}
+      <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-3 px-5 sm:px-10">
         <div className="flex min-w-0 items-center gap-2">
           {showBack && (
             <Button
@@ -45,11 +43,6 @@ export function Header({ step }: { step: StepId }) {
           >
             <Logo />
           </button>
-        </div>
-
-        {/* Right — demo-only Guest/Admin mode toggle */}
-        <div className="flex shrink-0 justify-end">
-          <RoleToggle />
         </div>
       </div>
     </header>

@@ -69,6 +69,30 @@ export interface PosterTemplate {
   history?: DesignVersionEntry[]
 }
 
+/** Access role for an admin account (display-only in this prototype — not enforced). */
+export type AdminRole = 'owner' | 'admin' | 'editor' | 'viewer'
+
+/**
+ * A back-office admin account — a MANAGEMENT-LIST record only, NOT the login
+ * gate. The demo login accepts any input (see useAuthStore); these accounts are
+ * not checked at sign-in. When a real backend lands, hash passwords server-side
+ * and validate the login against these records.
+ */
+export interface AdminAccount {
+  id: string
+  email: string
+  /** Plaintext in this front-end prototype — no backend, not hashed, not enforced. */
+  password: string
+  /** Optional display name. */
+  name?: string
+  /** Access role — display-only here (the login isn't gated by it). */
+  role: AdminRole
+  /** ISO timestamp the account was created. */
+  createdAt: string
+  /** ISO timestamp of the last edit. */
+  updatedAt?: string
+}
+
 /** A single Photo Coach finding shown inline to the user. */
 export interface CoachCheck {
   id: 'resolution' | 'brightness' | 'blur' | 'face'
