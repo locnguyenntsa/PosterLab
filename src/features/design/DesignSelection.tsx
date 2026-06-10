@@ -282,7 +282,7 @@ export function DesignSelection() {
                 )}
               >
                 {selected && (
-                  <span className="absolute right-1 top-1 z-10 bg-accent px-1.5 py-0.5 label text-ink">
+                  <span className="absolute right-1 top-1 z-30 bg-accent px-1.5 py-0.5 label text-ink">
                     Picked
                   </span>
                 )}
