@@ -34,6 +34,16 @@ export const TEMPLATES: PosterTemplate[] = [
     description: 'Clean, modern layout that lets the photo lead.',
     universal: true,
   },
+  {
+    // Photographic "SAISON 25.26" stadium (Figma 112-978). Recolors to the club's
+    // colors and fills the slot with the club's real crest. Rendered via the
+    // genericPoster seam, not the flat posterComposite canvas.
+    id: 'saison',
+    name: 'SAISON 25.26',
+    style: 'saison',
+    description: 'Photographic stadium — your photo in the frame, your crest in the slot.',
+    universal: true,
+  },
 ]
 
 export function getTemplate(id: string | null): PosterTemplate | undefined {

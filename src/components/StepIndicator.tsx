@@ -10,7 +10,8 @@ const STEP_LABELS: Record<number, string> = {
   6: 'Done',
 }
 
-/* Flat segmented step indicator — solid orange blocks, hard edges, no animation. */
+/* Flat segmented step indicator — skewed parallelogram blocks matching the
+   buttons (skewX(-11deg)), solid orange fills, no animation. */
 export function StepIndicator({ step }: { step: StepId }) {
   if (step < 1) return null
 
@@ -30,7 +31,7 @@ export function StepIndicator({ step }: { step: StepId }) {
             <div
               key={n}
               className={cn(
-                'h-1.5 flex-1',
+                'h-1.5 flex-1 -skew-x-[11deg]',
                 reached ? 'bg-accent' : 'bg-cream/12',
               )}
             />

@@ -1,6 +1,6 @@
 import { useRef, useState, type DragEvent } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowRight, ImagePlus, Loader2, RefreshCw, Camera, Sun, Smile } from 'lucide-react'
+import { ArrowRight, ImagePlus, Loader2, RefreshCw, Camera, Sun, Smile, ShieldCheck } from 'lucide-react'
 import { StepScreen } from '@/components/StepScreen'
 import { Button } from '@/components/ui/button'
 import { CoachFeedback } from '@/features/upload/CoachFeedback'
@@ -12,9 +12,9 @@ const MAX_BYTES = 10 * 1024 * 1024
 const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp']
 
 const TIPS = [
-  { icon: Smile, text: 'Face Forward' },
-  { icon: Sun, text: 'Bright Light' },
-  { icon: Camera, text: 'Sharp & Hi-Res' },
+  { icon: Smile, title: 'Face the camera', text: 'Look straight on — head and shoulders in frame.' },
+  { icon: Sun, title: 'Good light', text: 'Bright, even light. Avoid harsh shadows.' },
+  { icon: Camera, title: 'Sharp & hi-res', text: 'A clear, recent photo. No filters or blur.' },
 ]
 
 export function PhotoUpload() {
@@ -40,6 +40,10 @@ export function PhotoUpload() {
       if (photoUrl) URL.revokeObjectURL(photoUrl)
       const { url, result } = await run(file)
       setPhoto(url, file.name, result)
+      // Automatic generation: a clean photo goes straight to the render — no
+      // "Generate" button. A flagged photo pauses here so we can surface the
+      // issue before committing (the user can still continue anyway).
+      if (!result.hasFailure) next()
     } catch {
       setError('We could not read that image. Please try another file.')
     }
@@ -58,16 +62,16 @@ export function PhotoUpload() {
       step={2}
       kicker="Step 02"
       title="Drop Your Photo"
-      subtitle="We check it instantly and coach you to the best possible result."
+      subtitle="Add one photo and your poster is generated automatically."
       footer={
-        photoUrl ? (
+        photoUrl && hasFailure ? (
           <Button
             className="w-full"
             size="lg"
-            variant={hasFailure ? 'secondary' : 'default'}
+            variant="secondary"
             onClick={next}
           >
-            {hasFailure ? 'Use Anyway' : 'Generate Poster'}
+            Use This Photo Anyway
             <ArrowRight className="size-5" strokeWidth={1.5} />
           </Button>
         ) : undefined
@@ -131,17 +135,38 @@ export function PhotoUpload() {
             </div>
           )}
 
-          {/* Guidance — flat bordered blocks, outline icons */}
-          <div className="mt-8 grid grid-cols-3 gap-px border border-line bg-line">
-            {TIPS.map(({ icon: Icon, text }) => (
-              <div
-                key={text}
-                className="flex flex-col items-center gap-3 bg-primary p-5 text-center"
-              >
-                <Icon className="size-5 text-cream" strokeWidth={1.5} />
-                <span className="label text-mute">{text}</span>
-              </div>
-            ))}
+          {/* Guidelines — clearly visible up front (the deck asked for this) */}
+          <div className="mt-10">
+            <div className="flex items-center gap-3">
+              <span className="h-px flex-1 bg-line" />
+              <p className="label-wide text-mute">For the best poster</p>
+              <span className="h-px flex-1 bg-line" />
+            </div>
+            <div className="mt-5 grid grid-cols-1 gap-px border border-line bg-line sm:grid-cols-3">
+              {TIPS.map(({ icon: Icon, title, text }, i) => (
+                <div key={title} className="flex flex-col gap-4 bg-primary p-6">
+                  <div className="flex items-center justify-between">
+                    <span className="grid size-14 shrink-0 place-items-center bg-cream/15 text-cream">
+                      <Icon className="size-7" strokeWidth={1.5} />
+                    </span>
+                    <span className="t-meta text-mute">{`0${i + 1}`}</span>
+                  </div>
+                  <div className="space-y-2">
+                    <span className="block t-card text-3xl">{title}</span>
+                    <span className="block t-body">{text}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Reassurance — how the photo is handled (deck flagged this as missing) */}
+          <div className="mt-4 flex items-center gap-3 border border-line bg-surface px-4 py-3">
+            <ShieldCheck className="size-5 shrink-0 text-mute" strokeWidth={1.5} />
+            <p className="t-body">
+              Your photo is used only to create this poster. It’s processed securely,
+              never shared, and you can replace it or start over at any time.
+            </p>
           </div>
         </>
       ) : (

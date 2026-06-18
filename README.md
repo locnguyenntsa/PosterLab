@@ -1,4 +1,4 @@
-# OnePact
+# PosterLab
 
 A sports photo personalization tunnel: a guest uploads a photo and turns it into
 a "wow", print-ready sports poster. This repository is the **front-end

@@ -37,6 +37,24 @@ function loadImage(url: string): Promise<HTMLImageElement> {
   })
 }
 
+/** Draw `img` into the dest rect with object-contain fitting (centered, no crop). */
+function drawContain(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement,
+  dx: number,
+  dy: number,
+  dw: number,
+  dh: number,
+) {
+  const ir = img.naturalWidth / img.naturalHeight
+  const dr = dw / dh
+  let w = dw
+  let h = dh
+  if (ir > dr) h = dw / ir
+  else w = dh * ir
+  ctx.drawImage(img, dx + (dw - w) / 2, dy + (dh - h) / 2, w, h)
+}
+
 /** Draw `img` into the dest rect with object-cover cropping. */
 function drawCover(
   ctx: CanvasRenderingContext2D,
@@ -101,8 +119,10 @@ export async function compositePoster({
   club,
   template,
 }: CompositeInput): Promise<string> {
-  const [photo] = await Promise.all([
+  const [photo, logo] = await Promise.all([
     loadImage(photoUrl),
+    // Club crest, if any — failure falls back to the shortCode square below.
+    club.logoUrl ? loadImage(club.logoUrl).catch(() => null) : Promise.resolve(null),
     // Ensure the display font is ready so 'Bebas Neue' renders on the canvas.
     document.fonts?.ready?.catch(() => undefined),
   ])
@@ -136,15 +156,21 @@ export async function compositePoster({
   ctx.fillStyle = INK
   ctx.fillRect(0, barY, W, barH)
 
-  // shortCode in a hard square (primary-filled) at the left of the bar.
+  // Crest at the left of the bar — the real club logo (centered on the ink bar)
+  // when available, else the shortCode in a hard primary-filled square.
   const sq = barH
-  ctx.fillStyle = club.colors.primary
-  ctx.fillRect(0, barY, sq, sq)
-  ctx.fillStyle = CREAM
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  ctx.font = `400 ${Math.round(sq * 0.5)}px ${BRAND_FONTS.display}`
-  ctx.fillText(club.shortCode.toUpperCase(), sq / 2, barY + sq / 2)
+  if (logo) {
+    const pad = sq * 0.14
+    drawContain(ctx, logo, pad, barY + pad, sq - pad * 2, sq - pad * 2)
+  } else {
+    ctx.fillStyle = club.colors.primary
+    ctx.fillRect(0, barY, sq, sq)
+    ctx.fillStyle = CREAM
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.font = `400 ${Math.round(sq * 0.5)}px ${BRAND_FONTS.display}`
+    ctx.fillText(club.shortCode.toUpperCase(), sq / 2, barY + sq / 2)
+  }
 
   // Club name — big Bebas Neue UPPERCASE, left-aligned next to the square.
   const textX = sq + 36

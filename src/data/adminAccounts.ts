@@ -9,6 +9,6 @@ import type { AdminAccount } from '@/types'
   when a backend lands. Static seam → swap for an API later.
 */
 export const ADMIN_ACCOUNTS: Omit<AdminAccount, 'createdAt' | 'updatedAt'>[] = [
-  { id: 'owner', email: 'owner@onepact.fr', name: 'Owner', role: 'owner', password: 'Onepact123' },
-  { id: 'studio', email: 'studio@onepact.fr', name: 'Studio Lead', role: 'editor', password: 'Studio123' },
+  { id: 'owner', email: 'owner@posterlab.fr', name: 'Owner', role: 'owner', password: 'Posterlab123' },
+  { id: 'studio', email: 'studio@posterlab.fr', name: 'Studio Lead', role: 'editor', password: 'Studio123' },
 ]

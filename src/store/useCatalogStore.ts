@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware'
 import type { Club, PosterTemplate } from '@/types'
 import { TEMPLATES } from '@/data/templates'
 import { CLUBS } from '@/data/clubs'
+import { GENERIC_CLUB } from '@/data/generic'
 import type { DesignFormValues, TeamFormValues } from '@/features/admin/schemas'
 
 /*
@@ -158,6 +159,8 @@ export const useCatalogStore = create<CatalogState>()(
           shortCode: v.shortCode.toUpperCase(),
           colors: { primary: v.colors.primary, secondary: v.colors.secondary },
           posters: v.posters,
+          partner: v.partner,
+          designId: v.designId,
           logoUrl: v.logoUrl,
           status: v.status,
           updatedAt: nowISO(),
@@ -178,6 +181,8 @@ export const useCatalogStore = create<CatalogState>()(
                   shortCode: v.shortCode.toUpperCase(),
                   colors: { primary: v.colors.primary, secondary: v.colors.secondary },
                   posters: v.posters,
+                  partner: v.partner,
+                  designId: v.designId,
                   logoUrl: v.logoUrl,
                   status: v.status,
                   updatedAt: nowISO(),
@@ -201,9 +206,16 @@ export const useCatalogStore = create<CatalogState>()(
       resetCatalog: () => set({ designs: seedDesigns(), teams: seedTeams() }),
     }),
     {
-      name: 'onepact-catalog',
-      version: 1,
+      name: 'posterlab-catalog',
+      // Bump whenever the static catalog (clubs/designs) changes so a browser
+      // holding a cached snapshot re-seeds instead of showing stale data.
+      // v2: club crests/logos, the Mantes→Nantes rename, the SAISON template.
+      version: 2,
       partialize: (s) => ({ designs: s.designs, teams: s.teams }),
+      // On a version bump, re-seed from the static data files (mirrors
+      // resetCatalog). Without this, zustand v5 keeps the old persisted state.
+      migrate: () =>
+        ({ designs: seedDesigns(), teams: seedTeams() }) as unknown as CatalogState,
     },
   ),
 )
@@ -214,7 +226,16 @@ export const useTeams = () => useCatalogStore((s) => s.teams)
 
 /* ── Non-reactive lookups (for effects / non-React callers) ───────────────── */
 export const findTeam = (id: string | null) =>
-  useCatalogStore.getState().teams.find((c) => c.id === id)
+  id === 'generic' ? GENERIC_CLUB : useCatalogStore.getState().teams.find((c) => c.id === id)
+
+/**
+ * Resolve a club id against a teams list, transparently returning the synthetic
+ * generic house club (used by the non-partner /join funnel) for the id
+ * 'generic'. Lets reactive components resolve a working/cart clubId without the
+ * generic club ever being seeded into — and leaking out of — the catalog.
+ */
+export const resolveClub = (teams: Club[], id: string | null): Club | undefined =>
+  id === 'generic' ? GENERIC_CLUB : teams.find((c) => c.id === id)
 
 export const findDesign = (id: string | null) =>
   useCatalogStore.getState().designs.find((d) => d.id === id)
@@ -228,4 +249,17 @@ export function clubPosterAt(club: Club | undefined, index = 0): string | undefi
   const posters = club?.posters
   if (!posters || posters.length === 0) return undefined
   return posters[index % posters.length]
+}
+
+/**
+ * The single design assigned to a club (slide 7 "one design, one clear action").
+ * Falls back to the first live design when the club has none or its design is
+ * missing/unpublished — so the guest flow never dead-ends on a confirmation step.
+ */
+export function clubDesign(
+  club: Club | undefined,
+  designs: PosterTemplate[],
+): PosterTemplate | undefined {
+  const live = liveDesigns(designs)
+  return live.find((d) => d.id === club?.designId) ?? live[0]
 }

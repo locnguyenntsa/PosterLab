@@ -6,7 +6,7 @@ import type { AdminRole } from '@/types'
   used by the guest CheckoutForm (mode 'onBlur', aria-invalid per control).
 */
 
-export const STYLE_VALUES = ['spotlight', 'stadium', 'retro', 'minimal'] as const
+export const STYLE_VALUES = ['spotlight', 'stadium', 'retro', 'minimal', 'saison'] as const
 
 export const designSchema = z.object({
   name: z.string().min(2, 'Name is required').max(40, 'Keep it under 40 characters'),
@@ -38,6 +38,13 @@ export const teamSchema = z.object({
     secondary: z.string().regex(HEX, 'Use a hex color like #1a1920'),
   }),
   status: z.enum(['live', 'draft']),
+  /**
+   * Partner = a club we can fulfil (has a ready design). `false` shows it as
+   * "Coming Soon" in the tunnel and routes taps to the "not listed" flow.
+   */
+  partner: z.boolean(),
+  /** The club's single prepared design (slide 7: "one design = one club"). */
+  designId: z.string().min(1, 'Choose a design'),
   posters: z.array(z.string()).optional(),
   logoUrl: z.string().optional(),
 })

@@ -2,7 +2,7 @@
 
 /*
   ───────────────────────────────────────────────────────────────────────────
-  ONEPACT — FLAT EDITORIAL SPORTS UI SYSTEM  (placeholder brand v1.0)
+  POSTERLAB — FLAT EDITORIAL SPORTS UI SYSTEM
   Flat. Zero gradients. Zero drop shadows. Zero border-radius. Hard geometry.
   Display: Bebas Neue (uppercase). UI/body: Inter.
   Accent (Orange Blaze) is used sparingly — CTAs and one rule per screen.
@@ -63,9 +63,9 @@
   --text-section: clamp(2.5rem, 6.5vw, 4rem); /* → 64px — section / step headings */
   --text-card: clamp(1.875rem, 3vw, 2.5rem); /* → 40px — card / feature titles */
   --text-sub: 1.5rem; /* 24px — subheadings (Inter 700) */
-  --text-body: 1.125rem; /* 18px — body copy (Inter 400) */
-  --text-label: 0.875rem; /* 14px — tags, nav, UI labels (Inter 600) */
-  --text-meta: 0.8125rem; /* 13px — captions, step counters (Inter 500) */
+  --text-body: 1rem; /* 16px — body copy (Inter 400) */
+  --text-label: 0.8125rem; /* 13px — tags, nav, UI labels (Inter 700 italic) */
+  --text-meta: 0.75rem; /* 12px — captions, step counters (Inter 500 italic) */
 
   /* ── TEXT COLOR — 4 levels, never dim text with opacity ───────────────── */
   --text-primary: var(--brand-text); /* main readable content */
@@ -288,6 +288,28 @@
     }
   }
 
+  /* Pro Shop badge — an infinite glare sweep across the surface (the Figma
+     "BG-Demo" badge). No shadow: the badge matches the flat, skewed button. */
+  .shop-glare {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shop-glare 3.4s ease-in-out infinite;
+  }
+  @keyframes shop-glare {
+    0% {
+      transform: translateX(-120%) skewX(-20deg);
+    }
+    35%,
+    100% {
+      transform: translateX(480%) skewX(-20deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .shop-glare {
+      animation: none;
+      opacity: 0;
+    }
+  }
+
   /* Flat divider */
   .rule {
     border: none;
@@ -346,24 +368,26 @@
     letter-spacing: 0.02em;
     color: var(--text-secondary);
   }
-  /* UI label — tags, nav, field labels (Inter 600, uppercase, wide tracking).
+  /* UI label — tags, nav, field labels (Inter 700 italic, uppercase, wide tracking).
      .label is the canonical name (used widely); .t-label is an alias. */
   .label,
   .t-label {
     font-family: var(--font-ui);
     font-size: var(--text-label);
-    font-weight: 600;
+    font-weight: 700;
+    font-style: italic;
     line-height: 1;
     letter-spacing: 0.18em;
     text-transform: uppercase;
   }
-  /* Meta — captions, step counters, eyebrows (Inter 500, smallest tier).
+  /* Meta — captions, step counters, eyebrows (Inter 500 italic, smallest tier).
      .label-wide is the legacy name (kept as an alias of .t-meta). */
   .label-wide,
   .t-meta {
     font-family: var(--font-ui);
     font-size: var(--text-meta);
     font-weight: 500;
+    font-style: italic;
     line-height: 1.2;
     letter-spacing: 0.18em;
     text-transform: uppercase;

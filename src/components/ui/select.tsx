@@ -142,7 +142,7 @@ export function Select({
         onClick={() => (open ? setOpen(false) : openMenu())}
         onKeyDown={onKeyDown}
         className={cn(
-          'flex h-12 w-full items-center justify-between gap-2 border border-line bg-[var(--c-field)] px-4 text-lg font-semibold',
+          'flex h-12 w-full items-center justify-between gap-2 border border-line bg-[var(--c-field)] px-4 text-lg font-semibold backdrop-blur-sm',
           selected ? 'text-cream' : 'text-mute',
           'focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-cream',
           'disabled:cursor-not-allowed disabled:opacity-50',

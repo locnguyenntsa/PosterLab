@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Users, MapPin, Pencil, Copy, Trash2 } from 'lucide-react'
+import { Users, MapPin, Pencil, Copy, Trash2, Link2 } from 'lucide-react'
 import type { Club } from '@/types'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -12,11 +12,12 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { PageHeader } from '@/features/admin/PageHeader'
 import { SPORTS, getSport } from '@/data/sports'
 import { useAdminStore } from '@/store/useAdminStore'
-import { useCatalogStore, useTeams } from '@/store/useCatalogStore'
+import { useCatalogStore, useTeams, useDesigns, clubDesign } from '@/store/useCatalogStore'
 import { useToastStore } from '@/store/useToastStore'
 
 export function TeamsAdmin() {
   const teams = useTeams()
+  const designs = useDesigns()
   const openTeam = useAdminStore((s) => s.openTeam)
   const askDelete = useAdminStore((s) => s.askDelete)
   const duplicateTeam = useCatalogStore((s) => s.duplicateTeam)
@@ -88,6 +89,17 @@ export function TeamsAdmin() {
       },
     },
     {
+      key: 'design',
+      header: 'Design',
+      sortAccessor: (c) => (c.partner === false ? 'Coming Soon' : clubDesign(c, designs)?.name ?? ''),
+      cell: (c) =>
+        c.partner === false ? (
+          <Badge variant="warning">Coming Soon</Badge>
+        ) : (
+          <span className="t-body">{clubDesign(c, designs)?.name ?? '—'}</span>
+        ),
+    },
+    {
       key: 'posters',
       header: 'Posters',
       align: 'center',
@@ -109,6 +121,14 @@ export function TeamsAdmin() {
               onClick: () => {
                 duplicateTeam(c.id)
                 push('Team duplicated')
+              },
+            },
+            {
+              label: 'Copy shop link',
+              icon: Link2,
+              onClick: () => {
+                void navigator.clipboard?.writeText(`${window.location.origin}/shop/${c.id}`)
+                push('Pro Shop link copied')
               },
             },
             {

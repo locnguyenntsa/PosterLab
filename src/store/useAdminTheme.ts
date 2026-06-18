@@ -22,6 +22,6 @@ export const useAdminTheme = create<AdminThemeState>()(
       setTheme: (theme) => set({ theme }),
       toggleTheme: () => set((s) => ({ theme: s.theme === 'light' ? 'dark' : 'light' })),
     }),
-    { name: 'onepact-admin-theme' },
+    { name: 'posterlab-admin-theme' },
   ),
 )

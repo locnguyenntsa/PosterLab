@@ -16,7 +16,7 @@ import type { TeamFormValues } from '@/features/admin/schemas'
 import { uploadImage } from '@/features/admin/upload'
 import { SPORTS } from '@/data/sports'
 import { useAdminStore } from '@/store/useAdminStore'
-import { useCatalogStore, useDesigns } from '@/store/useCatalogStore'
+import { useCatalogStore, useDesigns, liveDesigns } from '@/store/useCatalogStore'
 import { useToastStore } from '@/store/useToastStore'
 
 const FORM_ID = 'team-form'
@@ -65,14 +65,16 @@ function TeamFormBody({ id }: { id: string | 'new' }) {
   const isNew = id === 'new'
   const existing = useCatalogStore((s) => (isNew ? undefined : s.teams.find((c) => c.id === id)))
   const designs = useDesigns()
-  const sampleTemplate = designs[0] ?? FALLBACK_TEMPLATE
+  const liveOptions = liveDesigns(designs)
   const addTeam = useCatalogStore((s) => s.addTeam)
   const updateTeam = useCatalogStore((s) => s.updateTeam)
   const close = useAdminStore((s) => s.closeTeam)
   const push = useToastStore((s) => s.push)
 
   const [uploading, setUploading] = useState(false)
+  const [logoUploading, setLogoUploading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+  const logoRef = useRef<HTMLInputElement>(null)
 
   const {
     register,
@@ -91,6 +93,8 @@ function TeamFormBody({ id }: { id: string | 'new' }) {
           shortCode: existing.shortCode,
           colors: { primary: existing.colors.primary, secondary: existing.colors.secondary },
           status: existing.status ?? 'live',
+          partner: existing.partner !== false,
+          designId: existing.designId ?? liveOptions[0]?.id ?? '',
           posters: existing.posters ?? [],
           logoUrl: existing.logoUrl,
         }
@@ -101,6 +105,8 @@ function TeamFormBody({ id }: { id: string | 'new' }) {
           shortCode: '',
           colors: { primary: BRAND.primary, secondary: BRAND.secondary },
           status: 'live',
+          partner: true,
+          designId: liveOptions[0]?.id ?? '',
           posters: [],
           logoUrl: undefined,
         },
@@ -108,6 +114,9 @@ function TeamFormBody({ id }: { id: string | 'new' }) {
 
   const values = watch()
   const posters = values.posters ?? []
+  // Preview reflects the chosen design so the admin sees what the club will ship.
+  const sampleTemplate =
+    liveOptions.find((d) => d.id === values.designId) ?? liveOptions[0] ?? FALLBACK_TEMPLATE
 
   const draftClub: Club = {
     id: existing?.id ?? 'preview',
@@ -119,6 +128,7 @@ function TeamFormBody({ id }: { id: string | 'new' }) {
       primary: isHex(values.colors.primary) ? values.colors.primary : BRAND.primary,
       secondary: isHex(values.colors.secondary) ? values.colors.secondary : BRAND.secondary,
     },
+    logoUrl: values.logoUrl,
     posters,
   }
 
@@ -152,6 +162,19 @@ function TeamFormBody({ id }: { id: string | 'new' }) {
       posters.filter((_, i) => i !== index),
       { shouldDirty: true },
     )
+
+  const onPickLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setLogoUploading(true)
+    try {
+      const url = await uploadImage(file)
+      setValue('logoUrl', url, { shouldDirty: true })
+    } finally {
+      setLogoUploading(false)
+      if (logoRef.current) logoRef.current.value = ''
+    }
+  }
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
@@ -187,6 +210,25 @@ function TeamFormBody({ id }: { id: string | 'new' }) {
           />
         </Field>
 
+        {/* One design = one club (slide 7 / slide 12). The guest tunnel shows
+            exactly this design for the club — no style picker. A "Coming Soon"
+            club has no design yet, so the picker is disabled until it's a partner. */}
+        <Field
+          label="Design"
+          error={errors.designId?.message}
+          htmlFor="team-design"
+          hint={values.partner ? 'Used in the club’s Pro Shop' : 'Partners only'}
+        >
+          <Select
+            id="team-design"
+            disabled={!values.partner}
+            aria-invalid={!!errors.designId}
+            value={values.designId}
+            onChange={(v) => setValue('designId', v, { shouldDirty: true, shouldValidate: true })}
+            options={liveOptions.map((d) => ({ value: d.id, label: d.name }))}
+          />
+        </Field>
+
         <div className="grid grid-cols-2 gap-4">
           <ColorField
             label="Primary color"
@@ -199,6 +241,20 @@ function TeamFormBody({ id }: { id: string | 'new' }) {
             value={values.colors.secondary}
             error={errors.colors?.secondary?.message}
             onChange={(v) => setValue('colors.secondary', v, { shouldValidate: true, shouldDirty: true })}
+          />
+        </div>
+
+        {/* Partner = fulfillable (has a ready design). Off → tagged "Coming Soon"
+            in the tunnel and routed to the "not listed" flow. */}
+        <div className="flex items-center justify-between border-t border-line pt-4">
+          <div className="space-y-1.5">
+            <p className="label text-cream">Partner club</p>
+            <p className="t-help">Off shows it as “Coming Soon” in the tunnel</p>
+          </div>
+          <Switch
+            aria-label="Partner club"
+            checked={values.partner}
+            onCheckedChange={(v) => setValue('partner', v, { shouldDirty: true })}
           />
         </div>
 
@@ -222,6 +278,46 @@ function TeamFormBody({ id }: { id: string | 'new' }) {
           <div className="mx-auto w-48">
             <PosterArt club={draftClub} template={sampleTemplate} />
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <p className="label text-mute">Club logo</p>
+          <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={onPickLogo} />
+          <div className="flex items-center gap-3">
+            {values.logoUrl ? (
+              <div className="size-16 shrink-0 border border-line bg-ink p-1">
+                <img src={values.logoUrl} alt="" className="size-full object-contain" />
+              </div>
+            ) : (
+              <div className="grid size-16 shrink-0 place-items-center border border-dashed border-line text-mute">
+                <ImagePlus className="size-5" strokeWidth={1.5} />
+              </div>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={logoUploading}
+                onClick={() => logoRef.current?.click()}
+              >
+                {logoUploading ? <Loader2 className="size-4 animate-spin" /> : <ImagePlus className="size-4" strokeWidth={1.5} />}
+                {values.logoUrl ? 'Replace logo' : 'Upload logo'}
+              </Button>
+              {values.logoUrl && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setValue('logoUrl', undefined, { shouldDirty: true })}
+                >
+                  <X className="size-4" strokeWidth={1.5} />
+                  Remove
+                </Button>
+              )}
+            </div>
+          </div>
+          <p className="t-help">Shown in the poster’s crest slot. A transparent PNG works best.</p>
         </div>
 
         <div className="space-y-2">

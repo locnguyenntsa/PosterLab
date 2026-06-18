@@ -110,9 +110,28 @@ export function getPlace(id: string | null): Place | undefined {
   return PLACES.find((p) => p.id === id)
 }
 
-/** Filter places by a free-text query against name + région (accent-insensitive). */
-export function searchPlaces(query: string): Place[] {
+/**
+ * Resolve a club's free-text `city` to a known Place. Exact (folded) match
+ * first, then a prefix match so e.g. club city "Mantes" finds "Mantes-la-Jolie".
+ * Lets us derive the location step from the clubs that actually exist.
+ */
+export function findPlaceByCityName(city: string): Place | undefined {
+  const c = fold(city)
+  if (!c) return undefined
+  return (
+    PLACES.find((p) => fold(p.name) === c) ??
+    PLACES.find((p) => fold(p.name).startsWith(c))
+  )
+}
+
+/** Filter an arbitrary list of places by a free-text query (accent-insensitive). */
+export function filterPlaces(list: Place[], query: string): Place[] {
   const q = fold(query.trim())
-  if (!q) return PLACES
-  return PLACES.filter((p) => fold(p.name).includes(q) || fold(p.region).includes(q))
+  if (!q) return list
+  return list.filter((p) => fold(p.name).includes(q) || fold(p.region).includes(q))
+}
+
+/** Filter the full catalog by a free-text query against name + région. */
+export function searchPlaces(query: string): Place[] {
+  return filterPlaces(PLACES, query)
 }

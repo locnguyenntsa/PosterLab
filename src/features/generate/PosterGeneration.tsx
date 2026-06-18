@@ -1,13 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, AlertCircle } from 'lucide-react'
+import { ArrowRight, AlertCircle, RotateCcw, Check, ShoppingBag, Plus } from 'lucide-react'
 import { StepScreen } from '@/components/StepScreen'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { useFlowStore } from '@/store/useFlowStore'
-import { useTeams, useDesigns } from '@/store/useCatalogStore'
+import { useTeams, useDesigns, resolveClub } from '@/store/useCatalogStore'
+import { useCartStore } from '@/store/useCartStore'
 import { compositePoster } from '@/features/generate/posterComposite'
+import { compositeGenericPoster } from '@/features/generate/genericPoster'
+import { POSTER_FORMAT, POSTER_PRICE_EUR, GENERIC_POSTER_FORMAT, GENERIC_PRICE_EUR } from '@/types'
+import { cn } from '@/lib/utils'
 
 const STAGES = [
   { until: 22, label: 'Analyzing photo' },
@@ -22,11 +26,29 @@ function stageLabel(p: number) {
 }
 
 export function PosterGeneration() {
-  const { photoUrl, clubId, templateId, posterUrl, setPoster, next } = useFlowStore()
+  const {
+    photoUrl,
+    clubId,
+    templateId,
+    posterUrl,
+    setPoster,
+    clearPhoto,
+    goTo,
+    cartItemId,
+    setCartItemId,
+    startAnother,
+    genericDesign,
+    genericColor,
+  } = useFlowStore()
+  const addItem = useCartStore((s) => s.addItem)
+  const cartItems = useCartStore((s) => s.items)
   const teams = useTeams()
   const designs = useDesigns()
-  const club = teams.find((c) => c.id === clubId)
+  const club = resolveClub(teams, clubId)
   const template = designs.find((d) => d.id === templateId)
+  // A partner club whose assigned design is the photographic "SAISON" stadium —
+  // rendered via the generic composite, recolored to the club's colors + its crest.
+  const isSaison = template?.style === 'saison'
 
   const [progress, setProgress] = useState(posterUrl ? 100 : 0)
   const [done, setDone] = useState(Boolean(posterUrl))
@@ -36,15 +58,31 @@ export function PosterGeneration() {
 
   useEffect(() => {
     if (done) return
-    if (!photoUrl || !club || !template) return
+    if (!photoUrl) return
+    // Generic design renders the "SAISON" stadium template from the chosen color;
+    // partner posters need a resolved club + template.
+    if (!genericDesign && (!club || !template)) return
 
     // Kick off the real composite once. (Guarded so StrictMode's double-mount
     // doesn't render twice — but the interval below is still recreated on
     // remount so progress always advances.)
     if (!startedRef.current) {
       startedRef.current = true
-      compositePoster({ photoUrl, club, template })
-        .then((url) => {
+      const render =
+        genericDesign && genericColor
+          ? compositeGenericPoster({ photoUrl, color: genericColor })
+          : isSaison && club
+            ? compositeGenericPoster({
+                photoUrl,
+                color: club.colors.primary,
+                logoUrl: club.logoUrl,
+                crestText: club.shortCode,
+              })
+            : club && template
+              ? compositePoster({ photoUrl, club, template })
+              : null
+      render
+        ?.then((url) => {
           setPoster(url)
           readyRef.current = true
         })
@@ -70,6 +108,41 @@ export function PosterGeneration() {
     return () => clearInterval(interval)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Start over after the render: drop the photo + poster and return to upload
+  // so the user can try a different shot and re-generate.
+  function retake() {
+    clearPhoto()
+    goTo(2)
+  }
+
+  // True only while this poster's snapshot is actually still in the cart — so if
+  // it's removed from the header cart, the button reverts from "Added" to "Add".
+  const inCart = Boolean(cartItemId) && cartItems.some((it) => it.id === cartItemId)
+
+  // Snapshot the finished poster into the cart (once). Create Another and
+  // Checkout both call this first, so the current poster is never lost.
+  function ensureInCart() {
+    if (inCart || !posterUrl || !clubId || !templateId) return
+    const id = addItem({
+      clubId,
+      templateId,
+      posterUrl,
+      format: genericDesign ? GENERIC_POSTER_FORMAT : POSTER_FORMAT,
+      priceEur: genericDesign ? GENERIC_PRICE_EUR : POSTER_PRICE_EUR,
+    })
+    setCartItemId(id)
+  }
+
+  function createAnother() {
+    ensureInCart()
+    startAnother()
+  }
+
+  function checkout() {
+    ensureInCart()
+    goTo(4)
+  }
 
   if (error) {
     return (
@@ -100,10 +173,40 @@ export function PosterGeneration() {
       }
       footer={
         done ? (
-          <Button className="w-full" size="lg" onClick={next}>
-            Continue
-            <ArrowRight className="size-5" strokeWidth={1.5} />
-          </Button>
+          <div className="flex flex-col gap-3">
+            <div className="flex gap-3">
+              <Button
+                variant={inCart ? 'secondary' : 'outline'}
+                className="flex-1"
+                onClick={ensureInCart}
+                disabled={inCart}
+              >
+                {inCart ? (
+                  <>
+                    <Check className="size-4" strokeWidth={1.5} />
+                    Added
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag className="size-4" strokeWidth={1.5} />
+                    Add to Cart
+                  </>
+                )}
+              </Button>
+              <Button variant="outline" className="flex-1" onClick={createAnother}>
+                <Plus className="size-4" strokeWidth={1.5} />
+                Create Another
+              </Button>
+            </div>
+            <Button className="w-full" size="lg" onClick={checkout}>
+              Checkout
+              <ArrowRight className="size-5" strokeWidth={1.5} />
+            </Button>
+            <Button variant="ghost" className="w-full" onClick={retake}>
+              <RotateCcw className="size-4" strokeWidth={1.5} />
+              Start Over With A New Photo
+            </Button>
+          </div>
         ) : undefined
       }
     >
@@ -137,21 +240,54 @@ export function PosterGeneration() {
               </div>
 
               <div className="w-full max-w-sm">
-                <div className="flex items-end justify-between">
-                  <motion.span
-                    key={stageLabel(progress)}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.1 }}
-                    className="label text-cream"
-                  >
-                    {stageLabel(progress)}
-                  </motion.span>
+                {/* Stage checklist — stays visible the whole render, ticking off
+                    each step as the progress bar passes its threshold. */}
+                <ul className="flex flex-col gap-2.5">
+                  {STAGES.map((stage) => {
+                    const stageDone = progress >= stage.until
+                    const active = !stageDone && stageLabel(progress) === stage.label
+                    return (
+                      <li key={stage.label} className="flex items-center gap-3">
+                        <span
+                          className={cn(
+                            'grid size-5 shrink-0 place-items-center border',
+                            stageDone
+                              ? 'border-success bg-success'
+                              : active
+                                ? 'border-accent'
+                                : 'border-line',
+                          )}
+                        >
+                          {stageDone ? (
+                            <Check className="size-3 text-cream" strokeWidth={3} />
+                          ) : active ? (
+                            <motion.span
+                              className="size-2 bg-accent"
+                              animate={{ opacity: [1, 0.3, 1] }}
+                              transition={{ duration: 1, repeat: Infinity }}
+                            />
+                          ) : null}
+                        </span>
+                        <span
+                          className={cn(
+                            'label',
+                            stageDone || active ? 'text-cream' : 'text-mute',
+                          )}
+                        >
+                          {stage.label}
+                        </span>
+                      </li>
+                    )
+                  })}
+                </ul>
+
+                <div className="mt-6 flex items-end justify-between">
+                  <span className="label text-mute">Rendering</span>
                   <span className="t-card tabular-nums text-accent">
                     {Math.round(progress)}%
                   </span>
                 </div>
-                <Progress className="mt-4" value={progress} />
+                <Progress className="mt-3" value={progress} />
               </div>
             </motion.div>
           ) : (

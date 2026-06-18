@@ -1,4 +1,4 @@
-// Core domain types for the OnePact tunnel.
+// Core domain types for the PosterLab tunnel.
 
 /** A French place (city/town) the guest picks first in the Design step. */
 export interface Place {
@@ -14,6 +14,8 @@ export interface Sport {
   /** Emoji used as a lightweight icon in the selection grid. */
   emoji: string
   tagline: string
+  /** Not yet pickable in the guest flow — folded behind the "Other sport" tile. */
+  comingSoon?: boolean
 }
 
 /** Publish state for catalog items managed in the admin back-office. */
@@ -39,6 +41,19 @@ export interface Club {
   colors: { primary: string; secondary: string }
   /** Real example poster images (served from /public/posters), if any. */
   posters?: string[]
+  /**
+   * The club's single prepared design (a PosterTemplate id). Per the client
+   * feedback (slide 7 "one design, one clear action"; slide 12 "one design =
+   * attached to one club") a partner club has exactly ONE design — no picker.
+   * Optional so seed literals compile; resolves to the first live design if absent.
+   */
+  designId?: string
+  /**
+   * Registration state. Absent/true = a partner we can fulfil. `false` = a known
+   * club listed for discovery but NOT yet a registered partner — the club picker
+   * tags it "Coming Soon" and routes a tap to the "club not found" edge case.
+   */
+  partner?: boolean
   // ── Admin-managed fields (optional so static seed literals still compile) ──
   /** Publish state. Teams are not filtered by status in the guest tunnel. */
   status?: DesignStatus
@@ -51,8 +66,13 @@ export interface Club {
 export interface PosterTemplate {
   id: string
   name: string
-  /** Visual style — drives how the composite is rendered. */
-  style: 'spotlight' | 'stadium' | 'retro' | 'minimal'
+  /**
+   * Visual style — drives how the composite is rendered. The four flat editorial
+   * styles render on the posterComposite canvas; 'saison' is the photographic
+   * "SAISON" stadium template (recolored to the club's colors, real crest in the
+   * slot) rendered via genericPoster / GenericPosterArt.
+   */
+  style: 'spotlight' | 'stadium' | 'retro' | 'minimal' | 'saison'
   description: string
   /** Whether this template is available for every club (generic fallback). */
   universal: boolean
@@ -127,4 +147,38 @@ export const TOTAL_STEPS = 6
 
 /** Catalog price for a framed poster (mirrors the client mockups). */
 export const POSTER_PRICE_EUR = 39
+/** Cheaper logo-less "generic design" for non-partner clubs (color of choice). */
+export const GENERIC_PRICE_EUR = 14.99
 export const SHIPPING_EUR = 0
+/** Standard poster format shown across the checkout. */
+export const POSTER_FORMAT = 'Framed · 30×40 cm'
+/** Format label for the logo-less generic-design poster. */
+export const GENERIC_POSTER_FORMAT = 'Generic · 30×40 cm'
+/** Optional digital version offered as an upsell at the ordering moment. */
+export const DIGITAL_ADDON_EUR = 2.5
+
+/**
+ * Multi-poster volume discount tiers applied to the poster subtotal. First
+ * matching tier wins, so keep them ordered highest-threshold-first.
+ */
+export const VOLUME_DISCOUNTS: { min: number; rate: number }[] = [
+  { min: 3, rate: 0.1 },
+  { min: 2, rate: 0.05 },
+]
+
+/** A finished poster sitting in the cart, waiting to be purchased. */
+export interface CartItem {
+  id: string
+  clubId: string
+  templateId: string
+  /** Generated poster image — a self-contained data URL, safe to hold in memory. */
+  posterUrl: string
+  /** Format label snapshot (e.g. POSTER_FORMAT) at the time it was added. */
+  format: string
+  /** Unit price snapshot in EUR. */
+  priceEur: number
+  /** How many copies of this poster to print. */
+  qty: number
+  /** ISO timestamp when the item was added to the cart. */
+  addedAt: string
+}

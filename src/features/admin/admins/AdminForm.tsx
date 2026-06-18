@@ -124,7 +124,7 @@ function AdminFormBody({ id }: { id: string | 'new' }) {
           id="admin-email"
           type="email"
           autoComplete="off"
-          placeholder="name@onepact.fr"
+          placeholder="name@posterlab.fr"
           aria-invalid={!!errors.email}
           aria-describedby={errors.email ? 'admin-email-error' : undefined}
           {...register('email')}

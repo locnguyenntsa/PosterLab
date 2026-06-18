@@ -36,6 +36,31 @@ export function pathForRole(role: Role): string {
   return role === 'admin' ? ADMIN_PATH : '/'
 }
 
+const SHOP_RE = /^\/shop\/([a-z0-9-]+)\/?$/i
+
+/**
+ * A Pro Shop link (`/shop/<club>`) returns the club slug, else null. Stays in the
+ * guest zone (roleFromPath only special-cases /admin) but puts the flow in a
+ * club-locked, themed mode — see useFlowStore.enterShop / App.tsx.
+ */
+export function shopClubFromPath(): string | null {
+  if (typeof window === 'undefined') return null
+  const m = window.location.pathname.match(SHOP_RE)
+  return m ? m[1].toLowerCase() : null
+}
+
+const JOIN_RE = /^\/join\/?$/i
+
+/**
+ * Whether the URL is the non-partner club funnel (`/join`). Like `/shop`, this
+ * stays in the guest zone (roleFromPath only special-cases /admin) but puts the
+ * flow into the join prelude — see useFlowStore.enterJoin / App.tsx.
+ */
+export function isJoinPath(): boolean {
+  if (typeof window === 'undefined') return false
+  return JOIN_RE.test(window.location.pathname)
+}
+
 interface AuthState {
   role: Role
   /** Whether the admin back-office has been unlocked (demo gate — see DEMO_ADMIN). */
@@ -59,7 +84,7 @@ export const useAuthStore = create<AuthState>()(
       logout: () => set({ isAdminAuthed: false }),
     }),
     {
-      name: 'onepact-auth',
+      name: 'posterlab-auth',
       // Only the sign-in flag is worth persisting; `role` is always re-derived
       // from the URL in merge() below, so storing it would be dead weight.
       partialize: (s) => ({ isAdminAuthed: s.isAdminAuthed }),

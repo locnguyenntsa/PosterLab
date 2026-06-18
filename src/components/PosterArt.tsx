@@ -1,6 +1,7 @@
 import { User } from 'lucide-react'
 import type { Club, PosterTemplate } from '@/types'
 import { cn } from '@/lib/utils'
+import { GenericPosterArt } from '@/components/GenericPosterArt'
 
 interface PosterArtProps {
   club: Club
@@ -11,6 +12,8 @@ interface PosterArtProps {
   image?: string
   /** Real poster image revealed on hover over the CSS art (template cards). */
   hoverImage?: string
+  /** Club color blended over a reused base `image` to re-brand it (mix-blend-color). */
+  tint?: string
   className?: string
 }
 
@@ -33,12 +36,28 @@ export function PosterArt({
   photoUrl,
   image,
   hoverImage,
+  tint,
   className,
 }: PosterArtProps) {
   const { primary, secondary } = club.colors
 
+  // The photographic "SAISON" template renders via its own stadium composite:
+  // the stadium recolored to the club's primary, the club's real crest in the
+  // slot. Generated art, so it ignores the baked `image`/`tint` props.
+  if (template.style === 'saison') {
+    return (
+      <GenericPosterArt
+        color={primary}
+        photoUrl={photoUrl}
+        logoUrl={club.logoUrl}
+        crestText={club.shortCode}
+        className={className}
+      />
+    )
+  }
+
   // Real poster image takes over the whole card (with a orange brand stripe and
-  // a subtle hover zoom). Used for the home showcase fan.
+  // a subtle hover zoom). Used for the home showcase fan and the style cards.
   if (image) {
     return (
       <div
@@ -52,6 +71,15 @@ export function PosterArt({
           alt={`${club.name} poster`}
           className="h-full w-full object-cover transition-transform duration-150 ease-out group-hover:scale-[1.06]"
         />
+        {/* Re-brand a reused base poster to the club's color — keeps the photo's
+            luminance, swaps its hue to the club primary. */}
+        {tint && (
+          <div
+            aria-hidden
+            className="absolute inset-0 mix-blend-color"
+            style={{ background: tint }}
+          />
+        )}
         <div className="absolute inset-x-0 top-0 h-[4px] bg-accent" />
       </div>
     )
@@ -119,14 +147,23 @@ export function PosterArt({
 
       {/* Name bar — solid ink block at the bottom */}
       <div className="absolute inset-x-0 bottom-0 flex items-stretch bg-ink">
-        {/* shortCode in a hard square */}
+        {/* Club crest — real logo on the ink bar when available, else the
+            shortCode in a hard primary-colored square. */}
         <div
           className="flex aspect-square shrink-0 items-center justify-center"
-          style={{ background: primary }}
+          style={club.logoUrl ? undefined : { background: primary }}
         >
-          <span className="px-2 font-display text-[13px] leading-none text-on-dark sm:text-base">
-            {club.shortCode}
-          </span>
+          {club.logoUrl ? (
+            <img
+              src={club.logoUrl}
+              alt=""
+              className="size-full object-contain p-1.5"
+            />
+          ) : (
+            <span className="px-2 font-display text-[13px] leading-none text-on-dark sm:text-base">
+              {club.shortCode}
+            </span>
+          )}
         </div>
         <div className="flex min-w-0 flex-col justify-center px-2 py-1.5">
           <p className="truncate font-display text-[13px] leading-none text-on-dark sm:text-base">

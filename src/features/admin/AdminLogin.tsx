@@ -29,7 +29,7 @@ type FormValues = z.infer<typeof schema>
   signed in the session persists (across reloads) until the explicit Sign out in
   the topbar; "Back to site" just returns to the storefront. Reuses the guest
   tunnel's brand chrome (PatternBG + flat dark Card) rather than the admin light
-  theme, so the lock screen reads as "OnePact", not a tool.
+  theme, so the lock screen reads as "Poster Lab", not a tool.
 */
 export function AdminLogin() {
   const login = useAuthStore((s) => s.login)
@@ -62,8 +62,8 @@ export function AdminLogin() {
 
   return (
     <div className="relative flex min-h-svh flex-col">
-      {/* Force the brand "1P" wall — never a leftover club code from a prior session. */}
-      <PatternBG token="1P" />
+      {/* Force the brand "PL" wall — never a leftover club code from a prior session. */}
+      <PatternBG token="PL" />
 
       <div className="relative z-10 flex min-h-svh flex-col items-center justify-center px-5 py-10">
         <motion.div
@@ -90,7 +90,7 @@ export function AdminLogin() {
                   <div className="relative">
                     <User
                       aria-hidden
-                      className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-mute"
+                      className="pointer-events-none absolute left-4 top-1/2 z-10 size-5 -translate-y-1/2 text-mute"
                       strokeWidth={1.5}
                     />
                     <Input
@@ -110,7 +110,7 @@ export function AdminLogin() {
                   <div className="relative">
                     <Lock
                       aria-hidden
-                      className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-mute"
+                      className="pointer-events-none absolute left-4 top-1/2 z-10 size-5 -translate-y-1/2 text-mute"
                       strokeWidth={1.5}
                     />
                     <Input

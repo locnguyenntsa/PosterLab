@@ -100,6 +100,7 @@ export function Dialog({
             transition={{ duration: 0.15, ease: 'easeOut' }}
             className={cn(
               'relative z-10 my-auto w-full border border-line bg-surface',
+              'shadow-[0_24px_70px_-12px_rgba(0,0,0,0.75)]',
               'before:absolute before:inset-x-0 before:top-0 before:h-[3px] before:bg-accent before:content-[""]',
               SIZES[size],
             )}

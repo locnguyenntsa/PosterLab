@@ -27,7 +27,7 @@ export function PatternBG({ token: tokenOverride }: { token?: string } = {}) {
   const club = teams.find((c) => c.id === clubId)
   // Callers outside the guest tunnel (e.g. the admin login) can force the brand
   // monogram so a leftover in-session clubId never tiles a stale club code.
-  const token = tokenOverride ?? club?.shortCode ?? '1P'
+  const token = tokenOverride ?? club?.shortCode ?? 'PL'
   // No inter-token space → letters pack tightly (denser, matches Figma).
   const half = `${token}`.repeat(TOKENS)
 

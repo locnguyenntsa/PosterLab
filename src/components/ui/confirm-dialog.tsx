@@ -10,6 +10,7 @@ export function ConfirmDialog({
   title,
   message,
   confirmLabel = 'Delete',
+  image,
 }: {
   open: boolean
   onClose: () => void
@@ -17,12 +18,21 @@ export function ConfirmDialog({
   title: string
   message: string
   confirmLabel?: string
+  /** Optional thumbnail of the item being acted on (e.g. the poster to remove). */
+  image?: string
 }) {
   return (
     <Dialog open={open} onClose={onClose} size="sm">
       <div className="flex flex-col items-center gap-4 text-center">
         <AlertTriangle className="size-9 text-danger" strokeWidth={1.5} />
         <h2 className="t-card">{title}</h2>
+        {image && (
+          <img
+            src={image}
+            alt=""
+            className="h-32 w-24 shrink-0 border border-line object-cover"
+          />
+        )}
         <p className="t-body">{message}</p>
         <div className="mt-2 flex w-full gap-3">
           <Button variant="outline" className="flex-1" onClick={onClose}>

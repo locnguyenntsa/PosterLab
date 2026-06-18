@@ -13,7 +13,7 @@ import { AdminsAdmin } from '@/features/admin/admins/AdminsAdmin'
 import { AdminForm } from '@/features/admin/admins/AdminForm'
 
 /*
-  Admin back-office shell: a sidebar dashboard that REUSES OnePact's tokens and
+  Admin back-office shell: a sidebar dashboard that REUSES PosterLab's tokens and
   flat style but intentionally drops the guest tunnel's centered layout and the
   PatternBG (admin is a separate, neutral tool). Content switches on the admin
   section — the same conditional-render pattern the guest App uses for steps.

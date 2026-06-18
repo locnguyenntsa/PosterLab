@@ -112,7 +112,7 @@ export const useAdminsStore = create<AdminsState>()(
       resetAdmins: () => set({ admins: seedAdmins() }),
     }),
     {
-      name: 'onepact-admins',
+      name: 'posterlab-admins',
       version: 2,
       // v1 had no `role`; backfill it so older persisted accounts stay valid.
       migrate: (persisted, version) => {
