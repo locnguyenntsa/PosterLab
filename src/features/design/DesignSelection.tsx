@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowRight, ChevronRight, MapPin, Search, Sparkles } from 'lucide-react'
+import { ArrowRight, ChevronRight, MapPin, Search, Sparkles, X } from 'lucide-react'
 import { StepScreen } from '@/components/StepScreen'
 import { PosterArt } from '@/components/PosterArt'
 import { ClubNotFound } from '@/features/design/ClubNotFound'
@@ -130,6 +130,18 @@ export function DesignSelection() {
   }, [sportClubs])
 
   const places = filterPlaces(locationPlaces, placeQuery)
+
+  // The "club not a partner yet" view — reused from both the place (no search
+  // match) and club (not in grid) steps.
+  const notFoundView = (
+    <ClubNotFound
+      onClose={() => setShowNotFound(false)}
+      onGeneric={(color) => {
+        setShowNotFound(false)
+        enterGenericDesign(color)
+      }}
+    />
+  )
 
   // Clubs are filtered by BOTH the chosen sport and the chosen location.
   const clubs =
@@ -283,7 +295,7 @@ export function DesignSelection() {
       )}
 
       {/* ── Sub-step: Place (location / department) ───── */}
-      {sub === 'place' && (
+      {sub === 'place' && (showNotFound ? notFoundView : (
         <div>
           {/* Search — flat input with a leading icon */}
           <div className="relative">
@@ -296,9 +308,19 @@ export function DesignSelection() {
               value={placeQuery}
               onChange={(e) => setPlaceQuery(e.target.value)}
               placeholder="Search your city or department…"
-              className="pl-12"
+              className="pl-12 pr-11 [&::-webkit-search-cancel-button]:appearance-none"
               aria-label="Search your area"
             />
+            {placeQuery && (
+              <button
+                type="button"
+                onClick={() => setPlaceQuery('')}
+                aria-label="Clear search"
+                className="absolute right-4 top-1/2 z-10 -translate-y-1/2 cursor-pointer text-mute transition-colors duration-100 hover:text-cream"
+              >
+                <X className="size-5" strokeWidth={1.5} />
+              </button>
+            )}
           </div>
 
           {/* Scrollable list — flat rows, hairline separators */}
@@ -347,23 +369,31 @@ export function DesignSelection() {
               </div>
             </div>
           ) : (
-            <div className="mt-4 border border-line bg-surface p-8 text-center t-body backdrop-blur-sm">
-              No areas with a club match “{placeQuery.trim()}”. Try another spelling.
-            </div>
+            <>
+              <div className="mt-4 border border-line bg-surface p-8 text-center t-body backdrop-blur-sm">
+                No areas with a club match “{placeQuery.trim()}”. Try another spelling.
+              </div>
+              {/* Escape hatch when the search finds nothing — same CTA as the club step. */}
+              <div className="mt-6 flex flex-col items-center gap-3 border-t border-line pt-6 text-center">
+                <p className="label-wide text-mute">Don’t see your club?</p>
+                <button
+                  type="button"
+                  onClick={() => setShowNotFound(true)}
+                  className="inline-flex items-center gap-1.5 whitespace-nowrap t-card text-xl text-cream transition-colors duration-100 hover:text-accent"
+                >
+                  My Club Isn’t Listed
+                  <ArrowRight className="size-4" strokeWidth={1.5} />
+                </button>
+              </div>
+            </>
           )}
         </div>
-      )}
+      ))}
 
       {/* ── Sub-step: Club ────────────────────────────── */}
       {sub === 'club' &&
         (showNotFound ? (
-          <ClubNotFound
-            onClose={() => setShowNotFound(false)}
-            onGeneric={(color) => {
-              setShowNotFound(false)
-              enterGenericDesign(color)
-            }}
-          />
+          notFoundView
         ) : (
           <>
           <div className="grid grid-cols-1 gap-px border border-line bg-line backdrop-blur-sm sm:grid-cols-2">
