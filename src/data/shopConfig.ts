@@ -4,6 +4,34 @@
  * pattern, generic hero). Assets live in /public (from the Figma FC Resources).
  * Keep copy SHORT — a badge, a two-line title, one line of promise.
  */
+/**
+ * The visiting team in a Pro Shop fixture. FREE-FORM (not a catalog Club) so a
+ * shop can list any opponent without seeding it as a partner club.
+ */
+export interface EventOpponent {
+  /** Display name, e.g. 'Stade de Reims'. */
+  name: string
+  /** Short code for the monogram-disc fallback when no logo, e.g. 'SDR'. */
+  shortCode: string
+  /** Crest path under /public (reuse an existing /club-logos PNG where possible). */
+  logo?: string
+  /** Opponent-side brand colour for the monogram disc (defaults to a neutral tint). */
+  color?: string
+}
+
+/** An upcoming fixture — turns the storefront landing into an event page. */
+export interface EventConfig {
+  /** The away team (the home team is the shop's locked club). */
+  opponent: EventOpponent
+  /** Kick-off as ISO 8601 WITH offset, e.g. '2026-08-23T19:00:00+02:00'
+   *  (explicit offset → the countdown is the same in every timezone). */
+  kickoff: string
+  /** Competition / round label, e.g. 'Ligue 1 · Matchday 2'. */
+  competition: string
+  /** Optional venue line, e.g. 'Stade Geoffroy-Guichard'. */
+  venue?: string
+}
+
 export interface ShopConfig {
   /** Full-bleed club action photo behind the monogram pattern. */
   backdrop?: string
@@ -20,6 +48,8 @@ export interface ShopConfig {
   badgeTitle?: string
   /** Accent colour for the badge title + glow (defaults to the club primary). */
   accent?: string
+  /** Optional upcoming fixture — when present the landing leads with the match-up. */
+  event?: EventConfig
 }
 
 const DEFAULT: ShopConfig = {
@@ -38,6 +68,18 @@ const CONFIG: Record<string, ShopConfig> = {
     description: 'Drop one photo. Join Les Verts in seconds.',
     badgeTitle: 'My ASSE Poster',
     accent: '#1d995b',
+    // Placeholder fixture — edit kickoff/opponent per the real matchday.
+    event: {
+      opponent: {
+        name: 'Stade de Reims',
+        shortCode: 'SDR',
+        logo: '/club-logos/stade-reims.png',
+        color: '#e2231a',
+      },
+      kickoff: '2026-08-23T19:00:00+02:00',
+      competition: 'Ligue 1 · Matchday 2',
+      venue: 'Stade Geoffroy-Guichard',
+    },
   },
   'paris-fc': {
     backdrop: '/shop-bg/paris-fc.jpg',
@@ -48,6 +90,18 @@ const CONFIG: Record<string, ShopConfig> = {
     description: 'Drop one photo. Wear the Paris blue.',
     badgeTitle: 'My Paris FC Poster',
     accent: '#3b82f6',
+    // Placeholder fixture — edit kickoff/opponent per the real matchday.
+    event: {
+      opponent: {
+        name: 'Stade de Reims',
+        shortCode: 'SDR',
+        logo: '/club-logos/stade-reims.png',
+        color: '#e2231a',
+      },
+      kickoff: '2026-09-13T17:00:00+02:00',
+      competition: 'Ligue 1 · Matchday 4',
+      venue: 'Stade Jean-Bouin',
+    },
   },
 }
 

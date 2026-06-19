@@ -28,12 +28,20 @@ export function Header({ step }: { step: StepId }) {
   const shopClub = shopClubId ? teams.find((c) => c.id === shopClubId) : null
   const shopCfg = shopClub ? shopConfigFor(shopClub.id) : null
   const shopAccent = shopCfg?.accent ?? shopClub?.colors.primary
+  // Transparent, chrome-less header only on the Pro Shop landing (step 0).
+  const shopHome = !!shopClubId && step === 0
 
   return (
     <header
       className={cn(
-        'sticky top-0 z-30 border-b border-line bg-primary transition-shadow duration-200',
-        !atTop && 'shadow-[0_10px_30px_-4px_rgba(0,0,0,0.7)]',
+        'sticky top-0 z-30 transition-shadow duration-200',
+        // On the Pro Shop landing (step 0) the header floats transparently over
+        // the immersive backdrop — no fill, hairline or scroll shadow. Every
+        // other screen (incl. the inner shop steps) keeps the solid brand bar.
+        shopHome
+          ? 'bg-transparent'
+          : 'border-b border-line bg-primary',
+        !atTop && !shopHome && 'shadow-[0_10px_30px_-4px_rgba(0,0,0,0.7)]',
       )}
     >
       {/* Back (inner steps) tucks in left of the logo. */}

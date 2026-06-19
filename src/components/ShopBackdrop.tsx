@@ -1,12 +1,24 @@
 import { shopConfigFor } from '@/data/shopConfig'
+import { cn } from '@/lib/utils'
 
 /*
   Pro Shop backdrop — a full-bleed club photo layer (the Figma "BG-Demo"). It
-  sits BELOW the monogram PatternBG and ABOVE the deep club-tinted page color,
-  blended soft-light at 50% so it reads as atmosphere, not a literal photo.
-  Renders nothing for clubs without artwork (graceful fall back to tint+pattern).
+  sits BELOW the monogram PatternBG and ABOVE the deep club-tinted page color.
+
+  Two intensities. On the STOREFRONT LANDING (`vivid`) the photo reads as a real
+  matchday hero shot — near-full opacity so the crowd/players come through, the
+  way the storefront mock shows it. On the INNER builder steps it drops to a
+  soft-light wash at half opacity so it stays pure atmosphere behind forms and
+  never fights the content. Renders nothing for clubs without artwork (graceful
+  fall back to tint + pattern).
 */
-export function ShopBackdrop({ clubId }: { clubId: string | null }) {
+export function ShopBackdrop({
+  clubId,
+  vivid = false,
+}: {
+  clubId: string | null
+  vivid?: boolean
+}) {
   const src = shopConfigFor(clubId).backdrop
   if (!src) return null
   return (
@@ -14,8 +26,14 @@ export function ShopBackdrop({ clubId }: { clubId: string | null }) {
       <img
         src={src}
         alt=""
-        className="size-full object-cover opacity-50 mix-blend-soft-light"
+        className={cn(
+          'size-full object-cover',
+          vivid ? 'opacity-90' : 'opacity-50 mix-blend-soft-light',
+        )}
       />
+      {/* Flat (non-gradient) scrim on the vivid landing — keeps muted copy legible
+          over the photo without dimming the whole shot. */}
+      {vivid && <div className="absolute inset-0 bg-primary/25" />}
     </div>
   )
 }

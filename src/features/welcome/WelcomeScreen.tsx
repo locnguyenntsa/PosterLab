@@ -3,6 +3,7 @@ import { ArrowRight, BadgeCheck, Timer, Truck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { HomePosterCard } from '@/features/welcome/HomePosterCard'
 import { ShopBadge } from '@/features/welcome/ShopBadge'
+import { ShopEventHeader } from '@/features/welcome/ShopEventHeader'
 import { cn } from '@/lib/utils'
 import { useFlowStore } from '@/store/useFlowStore'
 import { useTeams, useDesigns, clubPosterAt } from '@/store/useCatalogStore'
@@ -39,6 +40,8 @@ export function WelcomeScreen() {
   const shopClub = shopClubId ? teams.find((c) => c.id === shopClubId) : null
   // Per-club storefront copy (badge crest + season, short title + description).
   const cfg = shopClub ? shopConfigFor(shopClub.id) : null
+  // An upcoming fixture turns the shop landing into an event page (match-up leads).
+  const event = cfg?.event ?? null
   const fan = shopClub
     ? designs
         .filter((d) => d.status !== 'draft')
@@ -57,42 +60,58 @@ export function WelcomeScreen() {
     start()
   }
 
+  // The curved fan of 3 poster cards. The hero focal point on the normal home
+  // and non-event shops; in event mode it drops below the CTA as a preview.
+  const posterFan = (
+    <div className="relative flex items-end justify-center">
+      {fan.map((f, i) => {
+        const club = teams.find((c) => c.id === f.clubId)
+        const template = designs.find((d) => d.id === f.templateId)
+        if (!club || !template) return null
+        const isCenter = i === 1
+        return (
+          <motion.div
+            key={f.clubId}
+            initial={{ opacity: 0, y: f.y + 22, rotate: f.rot }}
+            animate={{ opacity: 1, y: f.y, rotate: f.rot }}
+            transition={{ duration: 0.18, delay: i * 0.07, ease: 'easeOut' }}
+            style={{ transformOrigin: 'bottom center' }}
+            className={cn(
+              'hover:z-30',
+              // Event mode shows a single, larger showcase fan; the normal home
+              // keeps the tighter sampler size.
+              isCenter
+                ? event
+                  ? 'z-20 w-44 sm:w-56'
+                  : 'z-20 w-36 sm:w-44'
+                : event
+                  ? 'z-10 w-32 sm:w-44'
+                  : 'z-10 w-28 sm:w-36',
+              i === 0 && (event ? '-mr-12 sm:-mr-16' : '-mr-10 sm:-mr-12'),
+              i === 2 && (event ? '-ml-12 sm:-ml-16' : '-ml-10 sm:-ml-12'),
+            )}
+          >
+            <HomePosterCard club={club} template={template} image={clubPosterAt(club, i)} />
+          </motion.div>
+        )
+      })}
+    </div>
+  )
+
   return (
     <div className="mx-auto flex min-h-[calc(100svh-65px)] w-full max-w-3xl flex-col items-center justify-center px-5 py-10 text-center">
-      {/* Curved fan of 3 poster cards — the hero focal point */}
-      <div className="relative flex items-end justify-center">
-        {fan.map((f, i) => {
-          const club = teams.find((c) => c.id === f.clubId)
-          const template = designs.find((d) => d.id === f.templateId)
-          if (!club || !template) return null
-          const isCenter = i === 1
-          return (
-            <motion.div
-              key={f.clubId}
-              initial={{ opacity: 0, y: f.y + 22, rotate: f.rot }}
-              animate={{ opacity: 1, y: f.y, rotate: f.rot }}
-              transition={{ duration: 0.18, delay: i * 0.07, ease: 'easeOut' }}
-              style={{ transformOrigin: 'bottom center' }}
-              className={cn(
-                'hover:z-30',
-                isCenter ? 'z-20 w-36 sm:w-44' : 'z-10 w-28 sm:w-36',
-                i === 0 && '-mr-10 sm:-mr-12',
-                i === 2 && '-ml-10 sm:-ml-12',
-              )}
-            >
-              <HomePosterCard
-                club={club}
-                template={template}
-                image={clubPosterAt(club, i)}
-              />
-            </motion.div>
-          )
-        })}
-      </div>
+      {/* Normal home / non-event shop: the poster fan leads. */}
+      {!event && posterFan}
 
       {/* Centered title block — compact so the page never needs scrolling */}
-      <motion.div {...fade} transition={{ duration: 0.15, delay: 0.18 }} className="mt-7">
-        {shopClub ? (
+      <motion.div {...fade} transition={{ duration: 0.15, delay: 0.18 }} className="mt-7 w-full">
+        {shopClub && event ? (
+          <ShopEventHeader
+            home={shopClub}
+            event={event}
+            accent={cfg?.accent ?? shopClub.colors.primary}
+          />
+        ) : shopClub ? (
           <ShopBadge club={shopClub} />
         ) : (
           <span className="inline-block bg-ink px-2.5 py-1 label text-cream">
@@ -104,9 +123,17 @@ export function WelcomeScreen() {
       <motion.h1
         {...fade}
         transition={{ duration: 0.15, delay: 0.22 }}
-        className="mt-5 t-hero"
+        className={cn(event ? 'mt-8 t-section whitespace-nowrap' : 'mt-5 t-hero')}
       >
-        {cfg ? (
+        {event ? (
+          // One smaller line on desktop; the break only kicks in on mobile so the
+          // phrase never has to drop/wrap mid-line.
+          <>
+            Match Day.{' '}
+            <br className="sm:hidden" />
+            Make It Yours.
+          </>
+        ) : cfg ? (
           <>
             {cfg.titleTop}
             <br />
@@ -126,7 +153,9 @@ export function WelcomeScreen() {
         transition={{ duration: 0.15, delay: 0.26 }}
         className="mx-auto mt-5 max-w-sm t-body"
       >
-        {cfg ? (
+        {event && shopClub ? (
+          `${shopClub.name} vs ${event.opponent.name} — get your matchday poster before kick-off.`
+        ) : cfg ? (
           cfg.description
         ) : (
           <>
@@ -151,11 +180,16 @@ export function WelcomeScreen() {
         </span>
       </motion.div>
 
-      {/* Value props — distinct dark tiles, orange icons, orange top accent */}
+      {/* Event mode: the poster fan becomes a product preview below the CTA. */}
+      {event && <div className="mt-10">{posterFan}</div>}
+
+      {/* Value props — distinct dark tiles, orange icons, orange top accent. In
+          event mode the larger, tilted fan above overhangs its layout box, so the
+          gap is widened to keep the cards clear of this section. */}
       <motion.div
         {...fade}
         transition={{ duration: 0.15, delay: 0.34 }}
-        className="relative mt-6 w-full border border-line"
+        className={cn('relative w-full border border-line', event ? 'mt-24' : 'mt-6')}
       >
         <div className="absolute inset-x-0 top-0 z-10 h-[3px] bg-accent" />
         <div className="grid grid-cols-1 gap-px bg-line sm:grid-cols-3">

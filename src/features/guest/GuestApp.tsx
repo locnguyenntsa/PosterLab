@@ -69,7 +69,7 @@ export function GuestApp() {
     <div className="relative flex min-h-svh flex-col">
       {/* Pro Shop: club photo UNDER the pattern (rendered first → lower in the
           same z-0 layer), themed steps only — drops on the confirmation (6). */}
-      {shopClubId && step !== 6 && <ShopBackdrop clubId={shopClubId} />}
+      {shopClubId && step !== 6 && <ShopBackdrop clubId={shopClubId} vivid={step === 0} />}
       <PatternBG />
       <div className="relative z-10 flex min-h-svh flex-col">
         <Header step={step} />
