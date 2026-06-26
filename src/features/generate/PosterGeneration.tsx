@@ -140,23 +140,22 @@ export function PosterGeneration() {
     setCartItemId(id)
   }
 
-  // Explicit "Add to Cart" tap: snapshot the poster, then offer the digital
-  // version as a standard upsell (classic posters only; the generic poster has
-  // no digital add-on). The Review & Pay screen keeps a checkbox as a fallback.
-  function addToCart() {
-    if (inCart) return
-    ensureInCart()
-    if (!genericDesign && !digitalAddon) setShowUpsell(true)
-  }
-
   function createAnother() {
     ensureInCart()
     startAnother()
   }
 
+  // Checkout is the upsell moment: snapshot the poster into the cart, then offer
+  // the digital version as a standard add-on (classic posters only — the generic
+  // poster has none). Navigation to the details form waits until the pop-up is
+  // accepted or dismissed; the Review & Pay screen keeps a checkbox as a fallback.
   function checkout() {
     ensureInCart()
-    goTo(4)
+    if (!genericDesign && !digitalAddon) {
+      setShowUpsell(true)
+    } else {
+      goTo(4)
+    }
   }
 
   if (error) {
@@ -193,7 +192,7 @@ export function PosterGeneration() {
               <Button
                 variant={inCart ? 'secondary' : 'outline'}
                 className="flex-1"
-                onClick={addToCart}
+                onClick={ensureInCart}
                 disabled={inCart}
               >
                 {inCart ? (
@@ -328,10 +327,14 @@ export function PosterGeneration() {
 
       <UpsellDialog
         open={showUpsell}
-        onClose={() => setShowUpsell(false)}
+        onClose={() => {
+          setShowUpsell(false)
+          goTo(4)
+        }}
         onAccept={() => {
           setDigitalAddon(true)
           setShowUpsell(false)
+          goTo(4)
         }}
       />
     </StepScreen>
