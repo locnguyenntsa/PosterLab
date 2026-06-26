@@ -192,7 +192,8 @@
     color: var(--c-ink);
   }
 
-  input::placeholder {
+  input::placeholder,
+  textarea::placeholder {
     color: var(--c-text-mute);
     text-transform: none;
     letter-spacing: 0.02em;
@@ -203,6 +204,41 @@
   input[type='number']::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
+  }
+
+  /*
+    Native date / datetime calendar picker indicator. The browser draws it black
+    by default, which reads heavy on dark fields and off-brand on the light admin
+    surface. `color-scheme` lets the browser render the glyph light-on-dark or
+    dark-on-light to match the field; opacity mutes it to the placeholder tone.
+    Default fields are dark (brand theme + admin dark mode); only the light admin
+    theme flips to dark-on-light.
+  */
+  input[type='date'],
+  input[type='datetime-local'] {
+    position: relative;
+    color-scheme: dark;
+  }
+  :root.admin-theme input[type='date'],
+  :root.admin-theme input[type='datetime-local'] {
+    color-scheme: light;
+  }
+  input[type='date']::-webkit-calendar-picker-indicator,
+  input[type='datetime-local']::-webkit-calendar-picker-indicator {
+    /* Pin to the field's right edge (inside px-4), vertically centered —
+       matching the Select dropdown chevron's position. */
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
+    cursor: pointer;
+    opacity: 0.55;
+    transition: opacity 0.15s ease;
+  }
+  input[type='date']::-webkit-calendar-picker-indicator:hover,
+  input[type='datetime-local']::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
   }
 }
 

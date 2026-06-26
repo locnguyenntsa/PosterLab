@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 export function Logo({ className }: { className?: string }) {
   return (
     <div className={cn('flex items-center gap-2.5 select-none', className)}>
-      <img src="/favicon.png" alt="Poster Lab" className="size-8 shrink-0" />
+      <img src="/brand/logo-mark.svg" alt="Poster Lab" className="h-8 w-auto shrink-0" />
       <span className="font-display text-2xl leading-none text-cream">
         Poster <span className="text-accent">Lab</span>
       </span>
