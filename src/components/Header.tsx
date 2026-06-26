@@ -59,14 +59,18 @@ export function Header({ step }: { step: StepId }) {
               <span className="hidden sm:inline">Back</span>
             </Button>
           )}
-          <button
-            type="button"
-            onClick={() => (joinPhase ? exitJoin() : goTo(0))}
-            aria-label="Poster Lab home"
-            className="shrink-0 cursor-pointer rounded-sm transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
-          >
-            <Logo />
-          </button>
+          {/* Pro Shop: the PosterLab (PL) logo is hidden — a storefront carries
+              only the club's identity (shown right). Elsewhere it's the home tap. */}
+          {!shopClubId && (
+            <button
+              type="button"
+              onClick={() => (joinPhase ? exitJoin() : goTo(0))}
+              aria-label="Poster Lab home"
+              className="shrink-0 cursor-pointer rounded-sm transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+            >
+              <Logo />
+            </button>
+          )}
         </div>
 
         {/* Right cluster: Pro Shop club lockup + cart. Hidden on the

@@ -9,6 +9,10 @@ import { DesignsAdmin } from '@/features/admin/designs/DesignsAdmin'
 import { DesignForm } from '@/features/admin/designs/DesignForm'
 import { TeamsAdmin } from '@/features/admin/teams/TeamsAdmin'
 import { TeamForm } from '@/features/admin/teams/TeamForm'
+import { GenericDesignsAdmin } from '@/features/admin/generic/GenericDesignsAdmin'
+import { GenericDesignForm } from '@/features/admin/generic/GenericDesignForm'
+import { EventsAdmin } from '@/features/admin/events/EventsAdmin'
+import { EventForm } from '@/features/admin/events/EventForm'
 import { AdminsAdmin } from '@/features/admin/admins/AdminsAdmin'
 import { AdminForm } from '@/features/admin/admins/AdminForm'
 
@@ -55,6 +59,10 @@ export function AdminApp() {
               <DesignsAdmin />
             ) : section === 'teams' ? (
               <TeamsAdmin />
+            ) : section === 'generic' ? (
+              <GenericDesignsAdmin />
+            ) : section === 'events' ? (
+              <EventsAdmin />
             ) : (
               <AdminsAdmin />
             )}
@@ -65,6 +73,8 @@ export function AdminApp() {
       {/* CRUD modals + delete confirmation (each controls its own open state) */}
       <DesignForm />
       <TeamForm />
+      <GenericDesignForm />
+      <EventForm />
       <AdminForm />
       <AdminDeleteConfirm />
     </div>

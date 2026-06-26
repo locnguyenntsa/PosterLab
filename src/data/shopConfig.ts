@@ -108,3 +108,22 @@ const CONFIG: Record<string, ShopConfig> = {
 export function shopConfigFor(clubId: string | null): ShopConfig {
   return (clubId && CONFIG[clubId]) || DEFAULT
 }
+
+/**
+ * Map an admin-managed Pro Shop event (Pro Admin tab) to the storefront's
+ * EventConfig shape, so a live campaign drives the same match-day landing the
+ * static `event` config does. The admin event's start/end window decides
+ * whether it's active (see WelcomeScreen); this just maps the fixture details.
+ */
+export function eventConfigFromAdmin(e: import('@/types').Event): EventConfig {
+  return {
+    opponent: {
+      name: e.opponentName,
+      shortCode: e.opponentCode,
+      color: e.opponentColor,
+    },
+    kickoff: e.kickoff,
+    competition: e.competition,
+    venue: e.venue,
+  }
+}

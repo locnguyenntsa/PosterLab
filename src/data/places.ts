@@ -99,7 +99,7 @@ export const PLACES: Place[] = [
 ]
 
 /** Accent/­case-insensitive key so "etienne" matches "Saint-Étienne". */
-function fold(s: string): string {
+export function fold(s: string): string {
   return s
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '')

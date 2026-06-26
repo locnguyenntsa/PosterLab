@@ -5,6 +5,7 @@ import { StepScreen } from '@/components/StepScreen'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
+import { UpsellDialog } from '@/features/checkout/UpsellDialog'
 import { useFlowStore } from '@/store/useFlowStore'
 import { useTeams, useDesigns, resolveClub } from '@/store/useCatalogStore'
 import { useCartStore } from '@/store/useCartStore'
@@ -39,6 +40,8 @@ export function PosterGeneration() {
     startAnother,
     genericDesign,
     genericColor,
+    digitalAddon,
+    setDigitalAddon,
   } = useFlowStore()
   const addItem = useCartStore((s) => s.addItem)
   const cartItems = useCartStore((s) => s.items)
@@ -53,6 +56,9 @@ export function PosterGeneration() {
   const [progress, setProgress] = useState(posterUrl ? 100 : 0)
   const [done, setDone] = useState(Boolean(posterUrl))
   const [error, setError] = useState<string | null>(null)
+  // The digital-version upsell now fires the moment a classic poster lands in the
+  // cart (the standard add-on prompt), not later on the Review & Pay screen.
+  const [showUpsell, setShowUpsell] = useState(false)
   const readyRef = useRef(Boolean(posterUrl))
   const startedRef = useRef(false)
 
@@ -134,6 +140,15 @@ export function PosterGeneration() {
     setCartItemId(id)
   }
 
+  // Explicit "Add to Cart" tap: snapshot the poster, then offer the digital
+  // version as a standard upsell (classic posters only; the generic poster has
+  // no digital add-on). The Review & Pay screen keeps a checkbox as a fallback.
+  function addToCart() {
+    if (inCart) return
+    ensureInCart()
+    if (!genericDesign && !digitalAddon) setShowUpsell(true)
+  }
+
   function createAnother() {
     ensureInCart()
     startAnother()
@@ -178,7 +193,7 @@ export function PosterGeneration() {
               <Button
                 variant={inCart ? 'secondary' : 'outline'}
                 className="flex-1"
-                onClick={ensureInCart}
+                onClick={addToCart}
                 disabled={inCart}
               >
                 {inCart ? (
@@ -310,6 +325,15 @@ export function PosterGeneration() {
           )}
         </AnimatePresence>
       </div>
+
+      <UpsellDialog
+        open={showUpsell}
+        onClose={() => setShowUpsell(false)}
+        onAccept={() => {
+          setDigitalAddon(true)
+          setShowUpsell(false)
+        }}
+      />
     </StepScreen>
   )
 }

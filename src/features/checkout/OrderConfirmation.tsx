@@ -3,7 +3,6 @@ import { Check, Loader2, Lock, Pencil } from 'lucide-react'
 import { StepScreen } from '@/components/StepScreen'
 import { Button } from '@/components/ui/button'
 import { OrderSummary } from '@/features/checkout/OrderSummary'
-import { UpsellDialog } from '@/features/checkout/UpsellDialog'
 import { useFlowStore } from '@/store/useFlowStore'
 import { useCartItems } from '@/store/useCartStore'
 import { cartTotals } from '@/lib/pricing'
@@ -20,9 +19,6 @@ export function OrderConfirmation() {
   const { order, goTo, setOrderNumber, next, digitalAddon, setDigitalAddon } = useFlowStore()
   const items = useCartItems()
   const [processing, setProcessing] = useState(false)
-  // Offer the digital version at the ordering moment (deck screen 5): the pop-up
-  // opens on entering Review & Pay unless it's already been added.
-  const [showUpsell, setShowUpsell] = useState(!digitalAddon)
   const total = cartTotals(items, digitalAddon).total
 
   function confirmAndPay() {
@@ -122,15 +118,6 @@ export function OrderConfirmation() {
           </p>
         </div>
       </div>
-
-      <UpsellDialog
-        open={showUpsell}
-        onClose={() => setShowUpsell(false)}
-        onAccept={() => {
-          setDigitalAddon(true)
-          setShowUpsell(false)
-        }}
-      />
     </StepScreen>
   )
 }

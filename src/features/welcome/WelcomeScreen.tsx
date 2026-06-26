@@ -6,8 +6,8 @@ import { ShopBadge } from '@/features/welcome/ShopBadge'
 import { ShopEventHeader } from '@/features/welcome/ShopEventHeader'
 import { cn } from '@/lib/utils'
 import { useFlowStore } from '@/store/useFlowStore'
-import { useTeams, useDesigns, clubPosterAt } from '@/store/useCatalogStore'
-import { shopConfigFor } from '@/data/shopConfig'
+import { useTeams, useDesigns, useEvents, clubPosterAt } from '@/store/useCatalogStore'
+import { shopConfigFor, eventConfigFromAdmin } from '@/data/shopConfig'
 
 // Three sample posters fanned into a curve at the top of the home page.
 const FAN = [
@@ -34,14 +34,39 @@ export function WelcomeScreen() {
   const enterJoin = useFlowStore((s) => s.enterJoin)
   const teams = useTeams()
   const designs = useDesigns()
+  const events = useEvents()
 
   // In a Pro Shop the hero showcases the locked club across a few styles, instead
   // of the default three-club sampler.
   const shopClub = shopClubId ? teams.find((c) => c.id === shopClubId) : null
   // Per-club storefront copy (badge crest + season, short title + description).
   const cfg = shopClub ? shopConfigFor(shopClub.id) : null
+  // Admin preview: `/shop/<club>?event=<id>` force-shows that event (any date,
+  // even draft) so the back-office can preview a campaign it just created.
+  const previewEventId =
+    typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).get('event')
+      : null
+  const previewEvent =
+    shopClub && previewEventId
+      ? events.find((e) => e.id === previewEventId && e.clubId === shopClub.id)
+      : undefined
+  // A live admin event (Pro Admin tab) whose [start, end] window contains today
+  // takes over the landing as a match-day page; else fall back to the static
+  // config fixture. The admin campaign window is what makes it active.
+  const activeAdminEvent = shopClub
+    ? events.find((e) => {
+        if (e.clubId !== shopClub.id || e.status === 'draft') return false
+        const today = new Date()
+        const start = new Date(e.startDate)
+        const end = new Date(e.endDate)
+        end.setHours(23, 59, 59, 999)
+        return today >= start && today <= end
+      })
+    : undefined
   // An upcoming fixture turns the shop landing into an event page (match-up leads).
-  const event = cfg?.event ?? null
+  const shownAdminEvent = previewEvent ?? activeAdminEvent
+  const event = (shownAdminEvent ? eventConfigFromAdmin(shownAdminEvent) : cfg?.event) ?? null
   const fan = shopClub
     ? designs
         .filter((d) => d.status !== 'draft')

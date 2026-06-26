@@ -22,6 +22,8 @@ export interface JoinClub {
   contactName: string
   email: string
   phone?: string
+  /** Free-text note from the club-request form. */
+  message?: string
 }
 
 const EMPTY_ORDER: OrderDetails = {

@@ -10,6 +10,8 @@ export function AdminDeleteConfirm() {
   const cancel = useAdminStore((s) => s.cancelDelete)
   const deleteDesign = useCatalogStore((s) => s.deleteDesign)
   const deleteTeam = useCatalogStore((s) => s.deleteTeam)
+  const deleteGenericDesign = useCatalogStore((s) => s.deleteGenericDesign)
+  const deleteEvent = useCatalogStore((s) => s.deleteEvent)
   const deleteAdmin = useAdminsStore((s) => s.deleteAdmin)
   const push = useToastStore((s) => s.push)
 
@@ -21,6 +23,12 @@ export function AdminDeleteConfirm() {
     } else if (target.kind === 'team') {
       deleteTeam(target.id)
       push('Team deleted', 'danger')
+    } else if (target.kind === 'generic') {
+      deleteGenericDesign(target.id)
+      push('Generic design deleted', 'danger')
+    } else if (target.kind === 'event') {
+      deleteEvent(target.id)
+      push('Event deleted', 'danger')
     } else {
       deleteAdmin(target.id)
       push('Admin deleted', 'danger')
@@ -33,7 +41,11 @@ export function AdminDeleteConfirm() {
       ? 'Delete admin?'
       : target?.kind === 'team'
         ? 'Delete team?'
-        : 'Delete design?'
+        : target?.kind === 'generic'
+          ? 'Delete generic design?'
+          : target?.kind === 'event'
+            ? 'Delete event?'
+            : 'Delete design?'
 
   return (
     <ConfirmDialog

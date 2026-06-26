@@ -13,12 +13,12 @@ import { useFlowStore } from '@/store/useFlowStore'
 import type { DesignSub } from '@/store/useFlowStore'
 import type { Place } from '@/types'
 import { SPORTS, getSport } from '@/data/sports'
-import { getPlace, findPlaceByCityName, filterPlaces } from '@/data/places'
+import { getPlace, findPlaceByCityName, filterPlaces, fold } from '@/data/places'
 import { useTeams, useDesigns, clubPosterAt, clubDesign, resolveClub } from '@/store/useCatalogStore'
 
 const SUBTITLES: Record<DesignSub, string> = {
   sport: 'Pick your sport. We match the clubs.',
-  place: 'Where’s your club based? Search by city or department.',
+  place: 'Where’s your club based? Search by department or city.',
   club: 'Pick the club you fight for.',
   template: 'Your club’s design — confirm to continue.',
 }
@@ -52,6 +52,7 @@ export function DesignSelection() {
   const lockedMode = !!shopClubId || clubId === 'generic'
 
   const [placeQuery, setPlaceQuery] = useState('')
+  const [clubQuery, setClubQuery] = useState('')
   const [showComingSoon, setShowComingSoon] = useState(false)
   // The "club not a partner yet" edge case overlays the club grid.
   const [showNotFound, setShowNotFound] = useState(false)
@@ -149,9 +150,17 @@ export function DesignSelection() {
       ? sportClubs.filter((c) => findPlaceByCityName(c.city)?.id === placeId)
       : []
 
+  // Free-text club search within the chosen area — matches name or city,
+  // accent-insensitive (so "etienne" finds "Saint-Étienne").
+  const visibleClubs = clubQuery.trim()
+    ? clubs.filter(
+        (c) => fold(c.name).includes(fold(clubQuery)) || fold(c.city).includes(fold(clubQuery)),
+      )
+    : clubs
+
   const crumbs: { key: DesignSub; label: string; done: boolean }[] = [
     { key: 'sport', label: sport?.name ?? 'Sport', done: !!sport },
-    { key: 'place', label: place?.name ?? 'Department', done: !!place },
+    { key: 'place', label: place?.region ?? 'Department', done: !!place },
     { key: 'club', label: club?.name ?? 'Club', done: !!club },
     {
       key: 'template',
@@ -307,7 +316,7 @@ export function DesignSelection() {
               type="search"
               value={placeQuery}
               onChange={(e) => setPlaceQuery(e.target.value)}
-              placeholder="Search your city or department…"
+              placeholder="Search your department or city…"
               className="pl-12 pr-11 [&::-webkit-search-cancel-button]:appearance-none"
               aria-label="Search your area"
             />
@@ -347,8 +356,15 @@ export function DesignSelection() {
                         className="size-4 shrink-0 text-mute group-hover:text-cream"
                         strokeWidth={1.5}
                       />
-                      <span className="min-w-0 truncate t-card text-[1.75rem] text-cream">
-                        {p.name}
+                      {/* Department leads (the broader area), with the city as the
+                          supporting line below it. */}
+                      <span className="min-w-0 flex-1">
+                        <span className="block min-w-0 truncate t-card text-[1.75rem] text-cream">
+                          {p.region}
+                        </span>
+                        <span className="mt-0.5 block min-w-0 truncate label-wide text-mute">
+                          {p.name}
+                        </span>
                       </span>
                       {/* How many clubs with a ready design are in this place. */}
                       <span
@@ -359,9 +375,6 @@ export function DesignSelection() {
                         aria-label={`${count} ${count === 1 ? 'club' : 'clubs'} with a design`}
                       >
                         {count}
-                      </span>
-                      <span className="ml-auto hidden shrink-0 label-wide text-mute sm:block">
-                        {p.region}
                       </span>
                     </button>
                   )
@@ -396,8 +409,35 @@ export function DesignSelection() {
           notFoundView
         ) : (
           <>
+          {/* Search — jump straight to a club by name (or city) within the area */}
+          <div className="relative mb-4">
+            <Search
+              className="pointer-events-none absolute left-4 top-1/2 z-10 size-5 -translate-y-1/2 text-mute"
+              strokeWidth={1.5}
+            />
+            <Input
+              type="search"
+              value={clubQuery}
+              onChange={(e) => setClubQuery(e.target.value)}
+              placeholder="Search your club…"
+              className="pl-12 pr-11 [&::-webkit-search-cancel-button]:appearance-none"
+              aria-label="Search your club"
+            />
+            {clubQuery && (
+              <button
+                type="button"
+                onClick={() => setClubQuery('')}
+                aria-label="Clear search"
+                className="absolute right-4 top-1/2 z-10 -translate-y-1/2 cursor-pointer text-mute transition-colors duration-100 hover:text-cream"
+              >
+                <X className="size-5" strokeWidth={1.5} />
+              </button>
+            )}
+          </div>
+
+          {visibleClubs.length > 0 ? (
           <div className="grid grid-cols-1 gap-px border border-line bg-line backdrop-blur-sm sm:grid-cols-2">
-            {clubs.map((c, i) => {
+            {visibleClubs.map((c, i) => {
               const selected = clubId === c.id
               const notPartner = c.partner === false
               return (
@@ -461,6 +501,11 @@ export function DesignSelection() {
               )
             })}
           </div>
+          ) : (
+            <div className="border border-line bg-surface p-8 text-center t-body backdrop-blur-sm">
+              No club matches “{clubQuery.trim()}” in this area.
+            </div>
+          )}
 
           {/* Escape hatch — pulled OUT of the list and shown below as a standalone
               CTA, matching the home "get your club listed" button. */}

@@ -6,6 +6,7 @@ import { Send } from 'lucide-react'
 import { StepScreen } from '@/components/StepScreen'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { useFlowStore } from '@/store/useFlowStore'
 import { JoinConfirmation } from '@/features/join/JoinConfirmation'
@@ -23,6 +24,7 @@ const schema = z.object({
   contactName: z.string().min(1, 'Your name is required'),
   email: z.string().min(1, 'Email is required').email('Enter a valid email'),
   phone: z.string().optional(),
+  message: z.string().optional(),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -58,7 +60,15 @@ export function JoinRegistration() {
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues:
-      joinClub ?? { clubName: '', sport: '', city: '', contactName: '', email: '', phone: '' },
+      joinClub ?? {
+        clubName: '',
+        sport: '',
+        city: '',
+        contactName: '',
+        email: '',
+        phone: '',
+        message: '',
+      },
     mode: 'onBlur',
   })
 
@@ -135,6 +145,14 @@ export function JoinRegistration() {
             />
           </Field>
         </div>
+
+        <Field label="Message (optional)" error={errors.message?.message}>
+          <Textarea
+            placeholder="Anything else we should know? Tell us about your club, your colours, your timeline…"
+            aria-invalid={!!errors.message}
+            {...register('message')}
+          />
+        </Field>
       </form>
     </StepScreen>
 

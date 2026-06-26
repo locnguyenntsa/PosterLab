@@ -5,10 +5,10 @@ import { create } from 'zustand'
   modal (if any) is open. NOT persisted — re-entering admin always lands on the
   Designs page with no modal open. Catalog data lives in useCatalogStore.
 */
-export type AdminSection = 'designs' | 'teams' | 'admins'
+export type AdminSection = 'designs' | 'teams' | 'generic' | 'events' | 'admins'
 
 export type DeleteTarget = {
-  kind: 'design' | 'team' | 'admin'
+  kind: 'design' | 'team' | 'generic' | 'event' | 'admin'
   id: string
   name: string
 }
@@ -26,6 +26,10 @@ interface AdminState {
   designEdit: string | 'new' | null
   /** Open team editor: an id to edit, 'new' to create, or null when closed. */
   teamEdit: string | 'new' | null
+  /** Open generic-design editor: an id to edit, 'new' to create, or null when closed. */
+  genericEdit: string | 'new' | null
+  /** Open event editor: an id to edit, 'new' to create, or null when closed. */
+  eventEdit: string | 'new' | null
   /** Open admin-account editor: an id to edit, 'new' to create, or null when closed. */
   adminEdit: string | 'new' | null
   /** Pending delete confirmation, or null. */
@@ -35,6 +39,10 @@ interface AdminState {
   closeDesign: () => void
   openTeam: (id: string | 'new') => void
   closeTeam: () => void
+  openGeneric: (id: string | 'new') => void
+  closeGeneric: () => void
+  openEvent: (id: string | 'new') => void
+  closeEvent: () => void
   openAdmin: (id: string | 'new') => void
   closeAdmin: () => void
   askDelete: (kind: DeleteTarget['kind'], id: string, name: string) => void
@@ -55,6 +63,8 @@ export const useAdminStore = create<AdminState>((set) => ({
 
   designEdit: null,
   teamEdit: null,
+  genericEdit: null,
+  eventEdit: null,
   adminEdit: null,
   confirmDelete: null,
 
@@ -62,6 +72,10 @@ export const useAdminStore = create<AdminState>((set) => ({
   closeDesign: () => set({ designEdit: null }),
   openTeam: (id) => set({ teamEdit: id }),
   closeTeam: () => set({ teamEdit: null }),
+  openGeneric: (id) => set({ genericEdit: id }),
+  closeGeneric: () => set({ genericEdit: null }),
+  openEvent: (id) => set({ eventEdit: id }),
+  closeEvent: () => set({ eventEdit: null }),
   openAdmin: (id) => set({ adminEdit: id }),
   closeAdmin: () => set({ adminEdit: null }),
   askDelete: (kind, id, name) => set({ confirmDelete: { kind, id, name } }),

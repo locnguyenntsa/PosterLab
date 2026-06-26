@@ -89,6 +89,58 @@ export interface PosterTemplate {
   history?: DesignVersionEntry[]
 }
 
+/**
+ * A ready-made "generic design" for customers who can't find their club — a
+ * named jersey-colour variant of the photographic SAISON template (logo-less,
+ * €14.99). Managed in the admin back-office (Generic Designs tab) and offered as
+ * a small gallery in the "club not found" flow. The chosen colour seeds the
+ * generic-design builder (useFlowStore.enterGenericDesign).
+ */
+export interface GenericDesign {
+  id: string
+  name: string
+  /** Jersey colour (hex) applied to the SAISON stadium template. */
+  color: string
+  /** Optional uploaded preview artwork (data URL in the demo). */
+  thumbnailUrl?: string
+  /** Publish state. The guest gallery only shows `live` generic designs. */
+  status?: DesignStatus
+  /** ISO timestamp of the last admin edit. */
+  updatedAt?: string
+}
+
+/**
+ * A Pro Shop campaign window for a partner club — a fixture that turns the
+ * club's storefront landing into an event page while the campaign is active
+ * (today within [startDate, endDate]). Managed in the admin "Pro Admin" tab and
+ * mapped to a storefront EventConfig (see data/shopConfig.ts).
+ */
+export interface Event {
+  id: string
+  /** The owning partner club (the home side). */
+  clubId: string
+  /** Campaign name, e.g. "Matchday 2". */
+  name: string
+  /** Visibility window — ISO date strings (yyyy-mm-dd). */
+  startDate: string
+  endDate: string
+  /** Competition / round label, e.g. 'Ligue 1 · Matchday 2'. */
+  competition: string
+  /** Away side display name + short code (free-form, not a catalog club). */
+  opponentName: string
+  opponentCode: string
+  /** Optional away-side brand colour for the monogram disc. */
+  opponentColor?: string
+  /** Optional venue line. */
+  venue?: string
+  /** Kick-off datetime (datetime-local value), shown in the countdown. */
+  kickoff: string
+  /** Publish state. The storefront only surfaces `live` events. */
+  status?: DesignStatus
+  /** ISO timestamp of the last admin edit. */
+  updatedAt?: string
+}
+
 /** Access role for an admin account (display-only in this prototype — not enforced). */
 export type AdminRole = 'owner' | 'admin' | 'editor' | 'viewer'
 

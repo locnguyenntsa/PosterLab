@@ -1,4 +1,4 @@
-import type { Club } from '@/types'
+import type { Club, GenericDesign } from '@/types'
 
 /**
  * The house "club" powering the non-partner `/join` funnel. It is deliberately
@@ -35,3 +35,15 @@ export const PRESET_COLORS: { name: string; value: string }[] = [
 ]
 // Default to blue so the stadium opens looking like its natural (Figma) state.
 export const DEFAULT_GENERIC_COLOR = PRESET_COLORS[0].value
+
+/**
+ * Seed gallery of generic designs shown to customers who can't find their club.
+ * A few named colour variants of the SAISON template — the admin Generic Designs
+ * tab edits this set; each one seeds the generic builder with its colour.
+ */
+export const GENERIC_DESIGNS: GenericDesign[] = [
+  { id: 'royal', name: 'Royal Blue', color: '#1d4ed8' },
+  { id: 'crimson', name: 'Crimson Red', color: '#dc2626' },
+  { id: 'forest', name: 'Forest Green', color: '#16a34a' },
+  { id: 'midnight', name: 'Midnight Black', color: '#0a0a0f' },
+]

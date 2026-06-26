@@ -1,10 +1,15 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Club, PosterTemplate } from '@/types'
+import type { Club, PosterTemplate, GenericDesign, Event } from '@/types'
 import { TEMPLATES } from '@/data/templates'
 import { CLUBS } from '@/data/clubs'
-import { GENERIC_CLUB } from '@/data/generic'
-import type { DesignFormValues, TeamFormValues } from '@/features/admin/schemas'
+import { GENERIC_CLUB, GENERIC_DESIGNS } from '@/data/generic'
+import type {
+  DesignFormValues,
+  TeamFormValues,
+  GenericDesignFormValues,
+  EventFormValues,
+} from '@/features/admin/schemas'
 
 /*
   The single, live source of truth for the catalog (poster designs + teams).
@@ -36,6 +41,15 @@ function seedTeams(): Club[] {
   return CLUBS.map((c) => ({ ...c, status: 'live' as const, updatedAt: SEED_AT }))
 }
 
+function seedGenericDesigns(): GenericDesign[] {
+  return GENERIC_DESIGNS.map((g) => ({ ...g, status: 'live' as const, updatedAt: SEED_AT }))
+}
+
+function seedEvents(): Event[] {
+  // No seed fixtures — events are created in the Pro Admin tab.
+  return []
+}
+
 /** Generate a unique slug id from a name, avoiding collisions with existing. */
 function makeId(name: string, existing: { id: string }[]): string {
   const base =
@@ -56,6 +70,8 @@ const MAX_HISTORY = 10
 interface CatalogState {
   designs: PosterTemplate[]
   teams: Club[]
+  genericDesigns: GenericDesign[]
+  events: Event[]
 
   // Designs CRUD (+ versioning)
   addDesign: (v: DesignFormValues) => string
@@ -70,6 +86,16 @@ interface CatalogState {
   duplicateTeam: (id: string) => string
   deleteTeam: (id: string) => void
 
+  // Generic designs CRUD
+  addGenericDesign: (v: GenericDesignFormValues) => string
+  updateGenericDesign: (id: string, v: GenericDesignFormValues) => void
+  deleteGenericDesign: (id: string) => void
+
+  // Events CRUD (Pro Shop campaign windows)
+  addEvent: (v: EventFormValues) => string
+  updateEvent: (id: string, v: EventFormValues) => void
+  deleteEvent: (id: string) => void
+
   resetCatalog: () => void
 }
 
@@ -78,6 +104,8 @@ export const useCatalogStore = create<CatalogState>()(
     (set, get) => ({
       designs: seedDesigns(),
       teams: seedTeams(),
+      genericDesigns: seedGenericDesigns(),
+      events: seedEvents(),
 
       addDesign: (v) => {
         const id = makeId(v.name, get().designs)
@@ -203,19 +231,115 @@ export const useCatalogStore = create<CatalogState>()(
 
       deleteTeam: (id) => set((s) => ({ teams: s.teams.filter((c) => c.id !== id) })),
 
-      resetCatalog: () => set({ designs: seedDesigns(), teams: seedTeams() }),
+      addGenericDesign: (v) => {
+        const id = makeId(v.name, get().genericDesigns)
+        const design: GenericDesign = {
+          id,
+          name: v.name,
+          color: v.color,
+          thumbnailUrl: v.thumbnailUrl,
+          status: v.status,
+          updatedAt: nowISO(),
+        }
+        set((s) => ({ genericDesigns: [design, ...s.genericDesigns] }))
+        return id
+      },
+
+      updateGenericDesign: (id, v) =>
+        set((s) => ({
+          genericDesigns: s.genericDesigns.map((g) =>
+            g.id === id
+              ? {
+                  ...g,
+                  name: v.name,
+                  color: v.color,
+                  thumbnailUrl: v.thumbnailUrl,
+                  status: v.status,
+                  updatedAt: nowISO(),
+                }
+              : g,
+          ),
+        })),
+
+      deleteGenericDesign: (id) =>
+        set((s) => ({ genericDesigns: s.genericDesigns.filter((g) => g.id !== id) })),
+
+      addEvent: (v) => {
+        const id = makeId(v.name, get().events)
+        const event: Event = {
+          id,
+          clubId: v.clubId,
+          name: v.name,
+          startDate: v.startDate,
+          endDate: v.endDate,
+          competition: v.competition,
+          opponentName: v.opponentName,
+          opponentCode: v.opponentCode.toUpperCase(),
+          opponentColor: v.opponentColor || undefined,
+          venue: v.venue || undefined,
+          kickoff: v.kickoff,
+          status: v.status,
+          updatedAt: nowISO(),
+        }
+        set((s) => ({ events: [event, ...s.events] }))
+        return id
+      },
+
+      updateEvent: (id, v) =>
+        set((s) => ({
+          events: s.events.map((e) =>
+            e.id === id
+              ? {
+                  ...e,
+                  clubId: v.clubId,
+                  name: v.name,
+                  startDate: v.startDate,
+                  endDate: v.endDate,
+                  competition: v.competition,
+                  opponentName: v.opponentName,
+                  opponentCode: v.opponentCode.toUpperCase(),
+                  opponentColor: v.opponentColor || undefined,
+                  venue: v.venue || undefined,
+                  kickoff: v.kickoff,
+                  status: v.status,
+                  updatedAt: nowISO(),
+                }
+              : e,
+          ),
+        })),
+
+      deleteEvent: (id) => set((s) => ({ events: s.events.filter((e) => e.id !== id) })),
+
+      resetCatalog: () =>
+        set({
+          designs: seedDesigns(),
+          teams: seedTeams(),
+          genericDesigns: seedGenericDesigns(),
+          events: seedEvents(),
+        }),
     }),
     {
       name: 'posterlab-catalog',
       // Bump whenever the static catalog (clubs/designs) changes so a browser
       // holding a cached snapshot re-seeds instead of showing stale data.
       // v2: club crests/logos, the Mantes→Nantes rename, the SAISON template.
-      version: 2,
-      partialize: (s) => ({ designs: s.designs, teams: s.teams }),
+      // v3: generic-designs gallery + Pro Shop events slices.
+      version: 3,
+      partialize: (s) => ({
+        designs: s.designs,
+        teams: s.teams,
+        genericDesigns: s.genericDesigns,
+        events: s.events,
+      }),
       // On a version bump, re-seed from the static data files (mirrors
       // resetCatalog). Without this, zustand v5 keeps the old persisted state.
       migrate: () =>
-        ({ designs: seedDesigns(), teams: seedTeams() }) as unknown as CatalogState,
+        ({
+          designs: seedDesigns(),
+          teams: seedTeams(),
+          genericDesigns: seedGenericDesigns(),
+          events: seedEvents(),
+        }) as unknown as CatalogState,
     },
   ),
 )
@@ -223,6 +347,12 @@ export const useCatalogStore = create<CatalogState>()(
 /* ── Reactive read hooks (subscribe to the store) ─────────────────────────── */
 export const useDesigns = () => useCatalogStore((s) => s.designs)
 export const useTeams = () => useCatalogStore((s) => s.teams)
+export const useGenericDesigns = () => useCatalogStore((s) => s.genericDesigns)
+export const useEvents = () => useCatalogStore((s) => s.events)
+
+/** Generic designs the guest gallery is allowed to show (drafts hidden). */
+export const liveGenericDesigns = (designs: GenericDesign[]) =>
+  designs.filter((d) => d.status !== 'draft')
 
 /* ── Non-reactive lookups (for effects / non-React callers) ───────────────── */
 export const findTeam = (id: string | null) =>

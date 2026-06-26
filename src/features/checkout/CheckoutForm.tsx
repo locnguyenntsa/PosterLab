@@ -97,6 +97,9 @@ export function CheckoutForm() {
             aria-invalid={!!errors.email}
             {...register('email')}
           />
+          <p className="t-body text-sm text-mute">
+            Your digital version and order summary will be sent to you by email.
+          </p>
         </Field>
 
         <div className="grid grid-cols-2 gap-4">

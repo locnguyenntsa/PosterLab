@@ -51,6 +51,49 @@ export const teamSchema = z.object({
 
 export type TeamFormValues = z.infer<typeof teamSchema>
 
+/* Generic designs — a named jersey-colour variant of the SAISON template, shown
+   to customers who can't find their club. */
+export const genericDesignSchema = z.object({
+  name: z.string().min(2, 'Name is required').max(40, 'Keep it under 40 characters'),
+  color: z.string().regex(HEX, 'Use a hex color like #1d4ed8'),
+  status: z.enum(['live', 'draft']),
+  thumbnailUrl: z.string().optional(),
+})
+
+export type GenericDesignFormValues = z.infer<typeof genericDesignSchema>
+
+/* Pro Shop events — a fixture campaign window owned by a partner club. The
+   start/end dates define when the storefront leads with the match-up. */
+export const eventSchema = z
+  .object({
+    name: z.string().min(2, 'Name is required').max(50, 'Keep it under 50 characters'),
+    clubId: z.string().min(1, 'Choose a club'),
+    startDate: z.string().min(1, 'Start date is required'),
+    endDate: z.string().min(1, 'End date is required'),
+    competition: z.string().min(2, 'Competition is required').max(60, 'Keep it short'),
+    opponentName: z.string().min(1, 'Opponent is required').max(40, 'Keep it short'),
+    opponentCode: z
+      .string()
+      .min(2, 'At least 2 characters')
+      .max(5, 'At most 5 characters')
+      .regex(/^[A-Za-z0-9]+$/, 'Letters and numbers only'),
+    opponentColor: z.string().regex(HEX, 'Use a hex color like #e2231a').optional().or(z.literal('')),
+    venue: z.string().max(80, 'Keep it short').optional(),
+    kickoff: z.string().min(1, 'Kick-off is required'),
+    status: z.enum(['live', 'draft']),
+  })
+  .superRefine((data, ctx) => {
+    if (data.startDate && data.endDate && data.endDate < data.startDate) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['endDate'],
+        message: 'End date must be on or after the start date',
+      })
+    }
+  })
+
+export type EventFormValues = z.infer<typeof eventSchema>
+
 /* Selectable admin roles (display-only — the login isn't gated by them). */
 export const ADMIN_ROLES: { value: AdminRole; label: string }[] = [
   { value: 'owner', label: 'Owner' },
