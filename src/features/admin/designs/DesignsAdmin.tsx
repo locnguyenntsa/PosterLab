@@ -45,7 +45,7 @@ export function DesignsAdmin() {
       key: 'style',
       header: 'Style',
       sortAccessor: (d) => d.style,
-      cell: (d) => <Badge variant="outline">{d.style}</Badge>,
+      cell: (d) => <span className="label text-cream">{d.style}</span>,
     },
     {
       key: 'status',
@@ -82,7 +82,7 @@ export function DesignsAdmin() {
       key: 'updated',
       header: 'Updated',
       sortAccessor: (d) => d.updatedAt ?? '',
-      cell: (d) => <span className="label text-mute">{relativeTime(d.updatedAt)}</span>,
+      cell: (d) => <span className="t-body">{relativeTime(d.updatedAt)}</span>,
     },
     {
       key: 'actions',

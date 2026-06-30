@@ -52,7 +52,7 @@ export function AdminsAdmin() {
       key: 'created',
       header: 'Created',
       sortAccessor: (a) => a.createdAt,
-      cell: (a) => <span className="label text-mute">{relativeTime(a.createdAt)}</span>,
+      cell: (a) => <span className="t-body">{relativeTime(a.createdAt)}</span>,
     },
     {
       key: 'actions',

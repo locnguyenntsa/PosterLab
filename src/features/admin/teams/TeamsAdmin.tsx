@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Users, Plus, MapPin, Pencil, Copy, Trash2, Link2, ImageOff } from 'lucide-react'
+import { Users, Plus, Pencil, Copy, Trash2, Link2, ImageOff } from 'lucide-react'
 import type { Club } from '@/types'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -65,12 +65,7 @@ export function TeamsAdmin() {
       key: 'city',
       header: 'City',
       sortAccessor: (c) => c.city,
-      cell: (c) => (
-        <span className="flex items-center gap-1 t-body">
-          <MapPin className="size-3.5 text-mute" strokeWidth={1.5} />
-          {c.city}
-        </span>
-      ),
+      cell: (c) => <span className="t-body">{c.city}</span>,
     },
     {
       key: 'code',
@@ -108,7 +103,7 @@ export function TeamsAdmin() {
       header: 'Posters',
       align: 'center',
       sortAccessor: (c) => c.posters?.length ?? 0,
-      cell: (c) => <span className="label text-mute">{c.posters?.length ?? 0}</span>,
+      cell: (c) => <span className="font-bold tabular-nums text-cream">{c.posters?.length ?? 0}</span>,
     },
     {
       key: 'actions',
