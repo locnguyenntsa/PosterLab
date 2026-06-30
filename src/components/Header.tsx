@@ -4,7 +4,7 @@ import { CartMenu } from '@/components/CartMenu'
 import { Button } from '@/components/ui/button'
 import { useFlowStore } from '@/store/useFlowStore'
 import { useTeams } from '@/store/useCatalogStore'
-import { shopConfigFor } from '@/data/shopConfig'
+import { shopConfigForClub } from '@/data/shopConfig'
 import { useScrollEdges } from '@/lib/useScrollEdges'
 import { cn } from '@/lib/utils'
 import type { StepId } from '@/types'
@@ -26,7 +26,7 @@ export function Header({ step }: { step: StepId }) {
   // Pro Shop: club lockup (crest + name) sits on the right, next to the cart, so
   // the storefront identity stays present through every step.
   const shopClub = shopClubId ? teams.find((c) => c.id === shopClubId) : null
-  const shopCfg = shopClub ? shopConfigFor(shopClub.id) : null
+  const shopCfg = shopClub ? shopConfigForClub(shopClub) : null
   const shopAccent = shopCfg?.accent ?? shopClub?.colors.primary
   // Transparent, chrome-less header only on the Pro Shop landing (step 0).
   const shopHome = !!shopClubId && step === 0

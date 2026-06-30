@@ -31,7 +31,9 @@ export function PageHeader({
       <div className="flex flex-wrap items-center gap-3">
         {children}
         {actionLabel && (
-          <Button size="sm" onClick={onAction}>
+          // Default size (h-12) so the primary CTA matches the search / filter
+          // field height, with the orange fill making it the highlighted action.
+          <Button onClick={onAction}>
             <Plus className="size-5" strokeWidth={2} />
             {actionLabel}
           </Button>

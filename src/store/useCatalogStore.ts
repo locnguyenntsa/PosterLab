@@ -67,6 +67,47 @@ function makeId(name: string, existing: { id: string }[]): string {
 
 const MAX_HISTORY = 10
 
+/** Strip blank strings to undefined so omitted overrides fall back to defaults. */
+const blankToUndef = (v?: string) => {
+  const t = v?.trim()
+  return t ? t : undefined
+}
+
+/** Parse the string price inputs to numbers, dropping blanks/invalid entries. */
+function cleanPrices(p?: {
+  digital?: string
+  printed?: string
+  pack?: string
+}): Club['prices'] | undefined {
+  if (!p) return undefined
+  const parse = (s?: string) => {
+    const n = Number(s)
+    return s && Number.isFinite(n) && n > 0 ? n : undefined
+  }
+  const out: NonNullable<Club['prices']> = {}
+  const d = parse(p.digital)
+  const pr = parse(p.printed)
+  const pk = parse(p.pack)
+  if (d != null) out.digital = d
+  if (pr != null) out.printed = pr
+  if (pk != null) out.pack = pk
+  return Object.keys(out).length ? out : undefined
+}
+
+/** Map the admin Teams form values onto the optional Pro Shop Club fields. */
+function teamProShopFields(v: TeamFormValues): Partial<Club> {
+  return {
+    eventDesignId: blankToUndef(v.eventDesignId),
+    prices: cleanPrices(v.prices),
+    heroTitleTop: blankToUndef(v.heroTitleTop),
+    heroHighlight: blankToUndef(v.heroHighlight),
+    heroDescription: blankToUndef(v.heroDescription),
+    badgeTitle: blankToUndef(v.badgeTitle),
+    accent: blankToUndef(v.accent),
+    backdropUrl: blankToUndef(v.backdropUrl),
+  }
+}
+
 interface CatalogState {
   designs: PosterTemplate[]
   teams: Club[]
@@ -191,6 +232,7 @@ export const useCatalogStore = create<CatalogState>()(
           designId: v.designId,
           logoUrl: v.logoUrl,
           status: v.status,
+          ...teamProShopFields(v),
           updatedAt: nowISO(),
         }
         set((s) => ({ teams: [team, ...s.teams] }))
@@ -213,6 +255,7 @@ export const useCatalogStore = create<CatalogState>()(
                   designId: v.designId,
                   logoUrl: v.logoUrl,
                   status: v.status,
+                  ...teamProShopFields(v),
                   updatedAt: nowISO(),
                 }
               : c,
@@ -324,7 +367,9 @@ export const useCatalogStore = create<CatalogState>()(
       // holding a cached snapshot re-seeds instead of showing stale data.
       // v2: club crests/logos, the Mantes→Nantes rename, the SAISON template.
       // v3: generic-designs gallery + Pro Shop events slices.
-      version: 3,
+      // v4: per-club Pro Shop overrides (event design, offer prices, hero copy,
+      //     backdrop) added to the Club shape.
+      version: 4,
       partialize: (s) => ({
         designs: s.designs,
         teams: s.teams,
@@ -392,4 +437,51 @@ export function clubDesign(
 ): PosterTemplate | undefined {
   const live = liveDesigns(designs)
   return live.find((d) => d.id === club?.designId) ?? live[0]
+}
+
+/**
+ * A club's optional EVENT design (the second slot, surfaced during an event
+ * window). Returns undefined when the club has none or it's unpublished — so
+ * callers fall back to the single classic design.
+ */
+export function clubEventDesign(
+  club: Club | undefined,
+  designs: PosterTemplate[],
+): PosterTemplate | undefined {
+  if (!club?.eventDesignId) return undefined
+  return liveDesigns(designs).find((d) => d.id === club.eventDesignId)
+}
+
+/**
+ * The club's live admin event (Pro Admin tab) whose [start, end] window contains
+ * `today`, if any — the campaign that turns the storefront into a match-day page
+ * and unlocks the event design. Drafts are ignored.
+ */
+export function activeEventForClub(
+  events: Event[],
+  clubId: string | null | undefined,
+  today: Date = new Date(),
+): Event | undefined {
+  if (!clubId) return undefined
+  return events.find((e) => {
+    if (e.clubId !== clubId || e.status === 'draft') return false
+    const start = new Date(e.startDate)
+    const end = new Date(e.endDate)
+    end.setHours(23, 59, 59, 999)
+    return today >= start && today <= end
+  })
+}
+
+/**
+ * Admin preview override: the event named by the `?event=<id>` URL param when it
+ * belongs to `clubId`. Lets the back-office force-preview a campaign (any date,
+ * even draft) on the storefront. Returns undefined off a preview URL.
+ */
+export function previewEventForClub(
+  events: Event[],
+  clubId: string | null | undefined,
+): Event | undefined {
+  if (!clubId || typeof window === 'undefined') return undefined
+  const id = new URLSearchParams(window.location.search).get('event')
+  return id ? events.find((e) => e.id === id && e.clubId === clubId) : undefined
 }

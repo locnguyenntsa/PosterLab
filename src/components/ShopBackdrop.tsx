@@ -1,4 +1,5 @@
-import { shopConfigFor } from '@/data/shopConfig'
+import { shopConfigForClub } from '@/data/shopConfig'
+import { useTeams, resolveClub } from '@/store/useCatalogStore'
 import { cn } from '@/lib/utils'
 
 /*
@@ -19,7 +20,8 @@ export function ShopBackdrop({
   clubId: string | null
   vivid?: boolean
 }) {
-  const src = shopConfigFor(clubId).backdrop
+  const teams = useTeams()
+  const src = shopConfigForClub(resolveClub(teams, clubId)).backdrop
   if (!src) return null
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">

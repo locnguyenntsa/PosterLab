@@ -25,6 +25,8 @@ interface CartState {
   removeItem: (id: string) => void
   /** Set a line-item's quantity (clamped to a minimum of 1). */
   setQty: (id: string, qty: number) => void
+  /** Patch a line-item in place (e.g. upgrade printed → pack from the upsell). */
+  patchItem: (id: string, patch: Partial<CartItem>) => void
   clear: () => void
 }
 
@@ -42,6 +44,10 @@ export const useCartStore = create<CartState>((set) => ({
       items: s.items.map((it) =>
         it.id === id ? { ...it, qty: Math.max(1, Math.round(qty)) } : it,
       ),
+    })),
+  patchItem: (id, patch) =>
+    set((s) => ({
+      items: s.items.map((it) => (it.id === id ? { ...it, ...patch } : it)),
     })),
   clear: () => set({ items: [] }),
 }))

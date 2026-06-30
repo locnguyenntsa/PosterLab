@@ -10,11 +10,11 @@ export function AdminTopbar() {
   const push = useToastStore((s) => s.push)
 
   return (
-    <header className="chrome-dark z-30 shrink-0 border-b border-line bg-bg">
+    <header className="chrome z-30 shrink-0 border-b border-line bg-bg">
       <div className="flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-6">
         <div className="flex items-center gap-3">
           <Logo />
-          <span className="hidden bg-ink px-2 py-0.5 label text-accent sm:inline">
+          <span className="hidden bg-accent/10 px-2 py-0.5 label text-accent sm:inline">
             Back-office
           </span>
         </div>
@@ -28,7 +28,7 @@ export function AdminTopbar() {
             }}
             aria-label="Sign out"
             title="Sign out"
-            className="grid size-9 cursor-pointer place-items-center text-mute transition-colors hover:bg-ink/40 hover:text-cream"
+            className="grid size-9 cursor-pointer place-items-center text-mute transition-colors hover:bg-cream/10 hover:text-cream"
           >
             <LogOut className="size-5" strokeWidth={1.5} />
           </button>

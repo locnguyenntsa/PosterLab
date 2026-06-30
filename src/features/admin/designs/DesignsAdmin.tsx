@@ -1,4 +1,4 @@
-import { LayoutGrid, Minus, Pencil, Copy, Trash2 } from 'lucide-react'
+import { LayoutGrid, Plus, Minus, Pencil, Copy, Trash2 } from 'lucide-react'
 import { CheckBadge } from '@/components/ui/check-badge'
 import type { PosterTemplate } from '@/types'
 import { PosterArt } from '@/components/PosterArt'
@@ -131,7 +131,12 @@ export function DesignsAdmin() {
             icon={LayoutGrid}
             title="No designs yet"
             message="Create your first poster design — it'll appear for guests in the tunnel."
-            action={<Button size="sm" onClick={() => openDesign('new')}>New design</Button>}
+            action={
+              <Button onClick={() => openDesign('new')}>
+                <Plus className="size-5" strokeWidth={2} />
+                New design
+              </Button>
+            }
           />
         }
       />

@@ -1,5 +1,4 @@
 import { cn, formatEUR } from '@/lib/utils'
-import { useFlowStore } from '@/store/useFlowStore'
 import { useCartItems, useCartStore } from '@/store/useCartStore'
 import { useTeams, resolveClub } from '@/store/useCatalogStore'
 import { cartTotals } from '@/lib/pricing'
@@ -10,9 +9,8 @@ import { QtyStepper } from '@/components/ui/qty-stepper'
 export function OrderSummary() {
   const items = useCartItems()
   const setQty = useCartStore((s) => s.setQty)
-  const digitalAddon = useFlowStore((s) => s.digitalAddon)
   const teams = useTeams()
-  const totals = cartTotals(items, digitalAddon)
+  const totals = cartTotals(items)
 
   return (
     <Card accent className="p-4 sm:p-6">
@@ -32,7 +30,9 @@ export function OrderSummary() {
                   {it.format}
                 </p>
                 <p className="label-wide text-mute tracking-[0.1em] sm:tracking-[0.18em]">
-                  Print On Demand · Ships 5–7 Days
+                  {it.offer === 'digital'
+                    ? 'Instant Download · HD File'
+                    : 'Print On Demand · Ships 5–7 Days'}
                 </p>
                 <div className="mt-1">
                   <QtyStepper value={it.qty} onChange={(q) => setQty(it.id, q)} />
@@ -59,12 +59,6 @@ export function OrderSummary() {
               Multi-poster −{Math.round(totals.discountRate * 100)}%
             </span>
             <span className="t-body font-bold text-success">−{formatEUR(totals.discountEur)}</span>
-          </div>
-        )}
-        {totals.addonEur > 0 && (
-          <div className="flex items-baseline justify-between">
-            <span className="label text-mute">Digital Version</span>
-            <span className="t-body font-bold text-cream">{formatEUR(totals.addonEur)}</span>
           </div>
         )}
         <div className="flex items-baseline justify-between">

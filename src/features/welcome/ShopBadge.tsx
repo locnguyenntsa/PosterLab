@@ -1,5 +1,5 @@
 import type { Club } from '@/types'
-import { shopConfigFor } from '@/data/shopConfig'
+import { shopConfigForClub } from '@/data/shopConfig'
 
 /*
   Pro Shop badge (the Figma "BG-Demo" badge): club crest + a per-club title and
@@ -9,7 +9,7 @@ import { shopConfigFor } from '@/data/shopConfig'
   club's primary colour. Glare lives in index.css, paused under reduced-motion.
 */
 export function ShopBadge({ club }: { club: Club }) {
-  const cfg = shopConfigFor(club.id)
+  const cfg = shopConfigForClub(club)
   const accent = cfg.accent ?? club.colors.primary
   const title = cfg.badgeTitle ?? `My ${club.shortCode} Poster`
   const season = cfg.season ?? '2025/2026'

@@ -99,7 +99,7 @@ export function DropdownMenu({
             ref={menuRef}
             role="menu"
             style={{ position: 'fixed', top: coords.top, right: coords.right }}
-            className="z-50 min-w-44 border border-line bg-ink py-1"
+            className="z-50 min-w-44 border border-line bg-ink py-1 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.55)]"
           >
             {items.map((it) => {
               const Icon = it.icon

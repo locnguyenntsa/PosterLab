@@ -4,11 +4,13 @@ import { cn } from '@/lib/utils'
 interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
   /** 0–100 */
   value?: number
+  /** Override the fill colour (defaults to the orange accent). */
+  indicatorClassName?: string
 }
 
 /* Flat progress bar — solid orange fill on a bordered track. Hard edges. */
 const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
-  ({ className, value = 0, ...props }, ref) => {
+  ({ className, value = 0, indicatorClassName, ...props }, ref) => {
     const clamped = Math.min(100, Math.max(0, value))
     return (
       <div
@@ -21,7 +23,10 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
         {...props}
       >
         <div
-          className="h-full bg-accent transition-[width] duration-100 ease-linear"
+          className={cn(
+            'h-full bg-accent transition-[width] duration-100 ease-linear',
+            indicatorClassName,
+          )}
           style={{ width: `${clamped}%` }}
         />
       </div>

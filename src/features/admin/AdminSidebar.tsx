@@ -58,7 +58,7 @@ export function AdminSidebar() {
   return (
     <aside
       className={cn(
-        'chrome-dark flex h-full shrink-0 flex-col overflow-y-auto border-r border-line bg-surface transition-[width] duration-150 ease-out',
+        'chrome flex h-full shrink-0 flex-col overflow-y-auto border-r border-line bg-bg transition-[width] duration-150 ease-out',
         collapsed ? 'w-16' : 'w-60',
       )}
     >
@@ -76,7 +76,7 @@ export function AdminSidebar() {
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           aria-expanded={!collapsed}
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          className="grid size-9 cursor-pointer place-items-center text-mute transition-colors hover:bg-ink/40 hover:text-cream"
+          className="grid size-9 cursor-pointer place-items-center text-mute transition-colors hover:bg-cream/10 hover:text-cream"
         >
           {collapsed ? (
             <PanelLeftOpen className="size-5" strokeWidth={1.5} />
@@ -100,8 +100,8 @@ export function AdminSidebar() {
                 'label relative flex cursor-pointer items-center gap-3 px-3 py-3 transition-colors duration-100',
                 collapsed ? 'justify-center' : 'justify-start',
                 active
-                  ? 'bg-ink text-cream'
-                  : 'text-mute hover:bg-ink/30 hover:text-cream',
+                  ? 'bg-surface text-cream'
+                  : 'text-mute hover:bg-cream/[0.06] hover:text-cream',
               )}
             >
               {active && <span className="absolute left-0 top-0 h-full w-1 bg-accent" />}

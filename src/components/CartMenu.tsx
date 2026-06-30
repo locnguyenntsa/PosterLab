@@ -21,7 +21,6 @@ export function CartMenu() {
   const items = useCartItems()
   const removeItem = useCartStore((s) => s.removeItem)
   const setQty = useCartStore((s) => s.setQty)
-  const digitalAddon = useFlowStore((s) => s.digitalAddon)
   const goTo = useFlowStore((s) => s.goTo)
   const teams = useTeams()
 
@@ -65,7 +64,7 @@ export function CartMenu() {
   // panel when the last item is removed, so no explicit close is needed).
   if (items.length === 0) return null
 
-  const totals = cartTotals(items, digitalAddon)
+  const totals = cartTotals(items)
 
   // Club behind the line-item awaiting delete confirmation (for the prompt copy).
   const pendingItem = items.find((i) => i.id === pendingRemove)
@@ -104,7 +103,7 @@ export function CartMenu() {
             role="dialog"
             aria-label="Cart"
             style={{ position: 'fixed', top: coords.top, right: coords.right }}
-            className="z-50 w-[min(22rem,calc(100vw-1.5rem))] border border-line bg-ink"
+            className="z-50 w-[min(22rem,calc(100vw-1.5rem))] border border-line bg-ink shadow-[0_12px_40px_-12px_rgba(0,0,0,0.55)]"
           >
             <div className="flex items-center justify-between border-b border-line px-4 py-3">
               <p className="label text-cream">Your Cart · {totals.count}</p>
@@ -161,9 +160,6 @@ export function CartMenu() {
                   value={`−${formatEUR(totals.discountEur)}`}
                   accent
                 />
-              )}
-              {totals.addonEur > 0 && (
-                <Row label="Digital version" value={formatEUR(totals.addonEur)} />
               )}
               <div className="flex items-baseline justify-between border-t border-line pt-2">
                 <span className="label text-cream">Total</span>

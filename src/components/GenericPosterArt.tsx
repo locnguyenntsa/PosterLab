@@ -1,3 +1,4 @@
+import { User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   GENERIC_SLOTS,
@@ -48,12 +49,20 @@ export function GenericPosterArt({
         style={{ background: color, mixBlendMode: 'color', opacity: GENERIC_TINT_OPACITY }}
       />
 
-      {/* Photo, clipped to the oval slot (sits above the recolor, keeps its colors) */}
-      {photoUrl && (
-        <div className="absolute overflow-hidden" style={{ ...box(GENERIC_SLOTS.photo), borderRadius: '50%' }}>
+      {/* Photo slot (clipped to the oval, above the recolor so it keeps its colors).
+          Empty → a faint person silhouette marks where the customer's photo drops
+          in, so the slot reads as "photo here" and not a stray graphic. Matches the
+          silhouette the flat PosterArt templates show. */}
+      <div
+        className="absolute grid place-items-center overflow-hidden"
+        style={{ ...box(GENERIC_SLOTS.photo), borderRadius: '50%' }}
+      >
+        {photoUrl ? (
           <img src={photoUrl} alt="" className="size-full object-cover" />
-        </div>
-      )}
+        ) : (
+          <User className="size-1/2 text-on-dark/25" strokeWidth={1.5} aria-hidden />
+        )}
+      </div>
 
       {/* Dashed oval slot outline — the provided SVG already carries the glow. */}
       <img

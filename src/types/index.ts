@@ -42,12 +42,16 @@ export interface Club {
   /** Real example poster images (served from /public/posters), if any. */
   posters?: string[]
   /**
-   * The club's single prepared design (a PosterTemplate id). Per the client
-   * feedback (slide 7 "one design, one clear action"; slide 12 "one design =
-   * attached to one club") a partner club has exactly ONE design — no picker.
-   * Optional so seed literals compile; resolves to the first live design if absent.
+   * The club's CLASSIC prepared design (a PosterTemplate id). Optional so seed
+   * literals compile; resolves to the first live design if absent.
    */
   designId?: string
+  /**
+   * An optional second "event" design (a PosterTemplate id). Surfaced in the Pro
+   * Shop only while an event campaign is active, so a club can hold both a
+   * classic and an event design (client feedback: several designs per club).
+   */
+  eventDesignId?: string
   /**
    * Registration state. Absent/true = a partner we can fulfil. `false` = a known
    * club listed for discovery but NOT yet a registered partner — the club picker
@@ -61,6 +65,24 @@ export interface Club {
   logoUrl?: string
   /** ISO timestamp of the last admin edit. */
   updatedAt?: string
+  /**
+   * Per-club Pro Shop offer price overrides (EUR). Any omitted value falls back
+   * to the catalog default constant. Edited in the back-office (Teams form).
+   */
+  prices?: { digital?: number; printed?: number; pack?: number }
+  // ── Pro Shop storefront overrides (edited in the Teams form) ──
+  /** Big hero title, top line. Falls back to the static shopConfig copy. */
+  heroTitleTop?: string
+  /** Hero highlight line — shown in the club accent colour (the "green name"). */
+  heroHighlight?: string
+  /** One short storefront promise line. */
+  heroDescription?: string
+  /** Storefront badge title (defaults to `My <shortCode> Poster`). */
+  badgeTitle?: string
+  /** Accent colour (hex) for the badge + highlight line. Defaults to club primary. */
+  accent?: string
+  /** Uploaded storefront backdrop photo (data URL in the demo). */
+  backdropUrl?: string
 }
 
 export interface PosterTemplate {
@@ -206,8 +228,37 @@ export const SHIPPING_EUR = 0
 export const POSTER_FORMAT = 'Framed · 30×40 cm'
 /** Format label for the logo-less generic-design poster. */
 export const GENERIC_POSTER_FORMAT = 'Generic · 30×40 cm'
-/** Optional digital version offered as an upsell at the ordering moment. */
+/** Digital top-up — the extra a Pack costs over a printed poster alone. */
 export const DIGITAL_ADDON_EUR = 2.5
+/** The digital-only HD file, sold as its own amateur-shop offer. */
+export const DIGITAL_PRICE_EUR = 14.99
+/** Printed poster offer price (alias of the framed-poster catalog price). */
+export const PRINTED_PRICE_EUR = POSTER_PRICE_EUR
+/** Pack (printed + digital) — printed price plus the small digital top-up. */
+export const PACK_PRICE_EUR = POSTER_PRICE_EUR + DIGITAL_ADDON_EUR
+
+/** The three buying options shown on the amateur "Poster Ready" screen. */
+export type OfferType = 'digital' | 'printed' | 'pack'
+
+/** A selectable print size with its catalog price (global — same for all clubs). */
+export interface PrintSize {
+  /** Label — doubles as the cart `size` snapshot. */
+  label: string
+  /** Catalog price for the PRINTED offer at this size (EUR). */
+  priceEur: number
+}
+
+/**
+ * Print sizes/formats for the Printed & Pack offers, each with its own price.
+ * The FIRST entry is the BASE size; a per-club price override shifts the base and
+ * the other sizes keep their price difference from it (see lib/pricing). The
+ * label doubles as the cart `size` snapshot. Placeholder prices.
+ */
+export const PRINT_SIZES: PrintSize[] = [
+  { label: POSTER_FORMAT, priceEur: POSTER_PRICE_EUR }, // Framed · 30×40 cm
+  { label: 'Framed · 50×70 cm', priceEur: 59 },
+  { label: 'Unframed · A3', priceEur: 29 },
+]
 
 /**
  * Multi-poster volume discount tiers applied to the poster subtotal. First
@@ -223,8 +274,12 @@ export interface CartItem {
   id: string
   clubId: string
   templateId: string
+  /** Which offer this line is — digital file, printed poster, or the pack. */
+  offer: OfferType
   /** Generated poster image — a self-contained data URL, safe to hold in memory. */
   posterUrl: string
+  /** Chosen print size for printed/pack offers (a PRINT_SIZES label); none for digital. */
+  size?: string
   /** Format label snapshot (e.g. POSTER_FORMAT) at the time it was added. */
   format: string
   /** Unit price snapshot in EUR. */

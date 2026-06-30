@@ -6,12 +6,21 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { UpsellDialog } from '@/features/checkout/UpsellDialog'
+import { OfferSelector } from '@/features/generate/OfferSelector'
 import { useFlowStore } from '@/store/useFlowStore'
 import { useTeams, useDesigns, resolveClub } from '@/store/useCatalogStore'
 import { useCartStore } from '@/store/useCartStore'
 import { compositePoster } from '@/features/generate/posterComposite'
 import { compositeGenericPoster } from '@/features/generate/genericPoster'
-import { POSTER_FORMAT, POSTER_PRICE_EUR, GENERIC_POSTER_FORMAT, GENERIC_PRICE_EUR } from '@/types'
+import {
+  POSTER_FORMAT,
+  POSTER_PRICE_EUR,
+  GENERIC_POSTER_FORMAT,
+  GENERIC_PRICE_EUR,
+  PRINT_SIZES,
+} from '@/types'
+import type { OfferType } from '@/types'
+import { offerPrice, offerFormat, packSaving } from '@/lib/pricing'
 import { cn } from '@/lib/utils'
 
 const STAGES = [
@@ -40,10 +49,11 @@ export function PosterGeneration() {
     startAnother,
     genericDesign,
     genericColor,
-    digitalAddon,
-    setDigitalAddon,
+    uploadedDesignUrl,
+    shopClubId,
   } = useFlowStore()
   const addItem = useCartStore((s) => s.addItem)
+  const patchItem = useCartStore((s) => s.patchItem)
   const cartItems = useCartStore((s) => s.items)
   const teams = useTeams()
   const designs = useDesigns()
@@ -56,9 +66,22 @@ export function PosterGeneration() {
   const [progress, setProgress] = useState(posterUrl ? 100 : 0)
   const [done, setDone] = useState(Boolean(posterUrl))
   const [error, setError] = useState<string | null>(null)
-  // The digital-version upsell now fires the moment a classic poster lands in the
-  // cart (the standard add-on prompt), not later on the Review & Pay screen.
+
+  // The amateur offer chosen on the "Poster Ready" screen (Digital / Printed /
+  // Pack). Only standard club posters show the selector; generic & uploaded
+  // designs add a single printed line as before.
+  const isStandard = !genericDesign && !uploadedDesignUrl
+  const [offer, setOffer] = useState<OfferType>('printed')
+  const [size, setSize] = useState<string>(PRINT_SIZES[0].label)
+  const [qty, setQty] = useState(1)
+  // Pro Shop clubs can override the three offer prices — feed the locked club so
+  // the figures reflect the back-office pricing (amateur flow passes none).
+  const proClub = shopClubId ? club : undefined
+
+  // The "make it a Pack" upsell fires once when a PRINTED-ONLY poster is added.
   const [showUpsell, setShowUpsell] = useState(false)
+  const afterUpsellRef = useRef<'stay' | 'checkout'>('stay')
+  const upsellDoneRef = useRef(false)
   const readyRef = useRef(Boolean(posterUrl))
   const startedRef = useRef(false)
 
@@ -127,17 +150,42 @@ export function PosterGeneration() {
   const inCart = Boolean(cartItemId) && cartItems.some((it) => it.id === cartItemId)
 
   // Snapshot the finished poster into the cart (once). Create Another and
-  // Checkout both call this first, so the current poster is never lost.
+  // Checkout both call this first, so the current poster is never lost. Standard
+  // posters carry the chosen offer/size/qty; generic & uploaded designs add a
+  // single printed line as before.
   function ensureInCart() {
     if (inCart || !posterUrl || !clubId || !templateId) return
-    const id = addItem({
-      clubId,
-      templateId,
-      posterUrl,
-      format: genericDesign ? GENERIC_POSTER_FORMAT : POSTER_FORMAT,
-      priceEur: genericDesign ? GENERIC_PRICE_EUR : POSTER_PRICE_EUR,
-    })
-    setCartItemId(id)
+    // The offer-specific fields; generic & uploaded designs are fixed printed
+    // lines, a standard poster carries the chosen offer/size/qty.
+    const line = genericDesign
+      ? { offer: 'printed' as const, format: GENERIC_POSTER_FORMAT, priceEur: GENERIC_PRICE_EUR }
+      : uploadedDesignUrl
+        ? { offer: 'printed' as const, size: PRINT_SIZES[0].label, format: POSTER_FORMAT, priceEur: POSTER_PRICE_EUR }
+        : {
+            offer,
+            size: offer === 'digital' ? undefined : size,
+            format: offerFormat(offer, size),
+            priceEur: offerPrice(offer, proClub, size),
+            qty,
+          }
+    setCartItemId(addItem({ clubId, templateId, posterUrl, ...line }))
+  }
+
+  // The digital upsell: only a PRINTED-only standard poster gets nudged toward
+  // the Pack, and only once. Returns true when the pop-up is shown so callers can
+  // defer navigation until it's accepted or dismissed.
+  function maybeUpsell(after: 'stay' | 'checkout'): boolean {
+    if (isStandard && offer === 'printed' && !upsellDoneRef.current) {
+      afterUpsellRef.current = after
+      setShowUpsell(true)
+      return true
+    }
+    return false
+  }
+
+  function addToCart() {
+    ensureInCart()
+    maybeUpsell('stay')
   }
 
   function createAnother() {
@@ -145,17 +193,27 @@ export function PosterGeneration() {
     startAnother()
   }
 
-  // Checkout is the upsell moment: snapshot the poster into the cart, then offer
-  // the digital version as a standard add-on (classic posters only — the generic
-  // poster has none). Navigation to the details form waits until the pop-up is
-  // accepted or dismissed; the Review & Pay screen keeps a checkbox as a fallback.
+  // Checkout: snapshot the poster, then (printed-only) offer the Pack upgrade.
+  // Navigation to the details form waits until the pop-up is resolved.
   function checkout() {
     ensureInCart()
-    if (!genericDesign && !digitalAddon) {
-      setShowUpsell(true)
-    } else {
-      goTo(4)
+    if (!maybeUpsell('checkout')) goTo(4)
+  }
+
+  // Decline → keep the printed poster; Accept → upgrade the cart line to a Pack.
+  function resolveUpsell(accepted: boolean) {
+    upsellDoneRef.current = true
+    if (accepted && cartItemId) {
+      patchItem(cartItemId, {
+        offer: 'pack',
+        size,
+        format: offerFormat('pack', size),
+        priceEur: offerPrice('pack', proClub, size),
+      })
+      setOffer('pack')
     }
+    setShowUpsell(false)
+    if (afterUpsellRef.current === 'checkout') goTo(4)
   }
 
   if (error) {
@@ -192,7 +250,7 @@ export function PosterGeneration() {
               <Button
                 variant={inCart ? 'secondary' : 'outline'}
                 className="flex-1"
-                onClick={ensureInCart}
+                onClick={addToCart}
                 disabled={inCart}
               >
                 {inCart ? (
@@ -297,11 +355,11 @@ export function PosterGeneration() {
 
                 <div className="mt-6 flex items-end justify-between">
                   <span className="label text-mute">Rendering</span>
-                  <span className="t-card tabular-nums text-accent">
+                  <span className="t-card tabular-nums text-cream">
                     {Math.round(progress)}%
                   </span>
                 </div>
-                <Progress className="mt-3" value={progress} />
+                <Progress className="mt-3" value={progress} indicatorClassName="bg-cream" />
               </div>
             </motion.div>
           ) : (
@@ -320,6 +378,18 @@ export function PosterGeneration() {
                 />
               )}
               <Badge variant="success">HD Render Complete</Badge>
+              {isStandard && (
+                <OfferSelector
+                  offer={offer}
+                  onOffer={setOffer}
+                  size={size}
+                  onSize={setSize}
+                  qty={qty}
+                  onQty={setQty}
+                  club={proClub}
+                  disabled={inCart}
+                />
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -327,15 +397,9 @@ export function PosterGeneration() {
 
       <UpsellDialog
         open={showUpsell}
-        onClose={() => {
-          setShowUpsell(false)
-          goTo(4)
-        }}
-        onAccept={() => {
-          setDigitalAddon(true)
-          setShowUpsell(false)
-          goTo(4)
-        }}
+        saving={packSaving(proClub)}
+        onClose={() => resolveUpsell(false)}
+        onAccept={() => resolveUpsell(true)}
       />
     </StepScreen>
   )

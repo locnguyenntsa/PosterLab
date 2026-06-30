@@ -20,11 +20,17 @@ export function OrderConfirmed() {
   const { order, orderNumber, reset } = useFlowStore()
   const items = useCartItems()
   const clearCart = useCartStore((s) => s.clear)
-  const digitalAddon = useFlowStore((s) => s.digitalAddon)
   const teams = useTeams()
-  const totals = cartTotals(items, digitalAddon)
-  // Total copies across all line-items (qty-aware), for the delivery summary.
-  const unitCount = items.reduce((n, it) => n + it.qty, 0)
+  const totals = cartTotals(items)
+  // Split the delivery summary by fulfilment: printed/pack ship, digital is an
+  // instant download. A digital-only order never claims a framed poster ships.
+  const physicalCount = items
+    .filter((it) => it.offer !== 'digital')
+    .reduce((n, it) => n + it.qty, 0)
+  const digitalCount = items
+    .filter((it) => it.offer === 'digital')
+    .reduce((n, it) => n + it.qty, 0)
+  const digitalOnly = physicalCount === 0
 
   const invoiceRef = useRef<HTMLDivElement>(null)
   const [downloading, setDownloading] = useState(false)
@@ -121,11 +127,17 @@ export function OrderConfirmed() {
           </div>
         </div>
         <div className="flex items-center gap-3 bg-surface px-4 py-3">
-          <Package className="size-5 shrink-0 text-mute" strokeWidth={1.5} />
+          {digitalOnly ? (
+            <Download className="size-5 shrink-0 text-mute" strokeWidth={1.5} />
+          ) : (
+            <Package className="size-5 shrink-0 text-mute" strokeWidth={1.5} />
+          )}
           <div className="min-w-0 flex-1">
             <p className="label-wide text-mute">Delivery</p>
             <p className="truncate t-body text-cream">
-              {unitCount} Poster{unitCount === 1 ? '' : 's'} · Framed · 5–7 Days
+              {digitalOnly
+                ? `${digitalCount} Digital File${digitalCount === 1 ? '' : 's'} · Instant Download`
+                : `${physicalCount} Poster${physicalCount === 1 ? '' : 's'} · Framed · 5–7 Days`}
             </p>
           </div>
         </div>

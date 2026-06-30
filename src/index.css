@@ -8,8 +8,8 @@
   Accent (Orange Blaze) is used sparingly — CTAs and one rule per screen.
 
   REBRAND HERE: the brand DARK palette lives in the --brand-* tokens below
-  (single source). :root (guest) and .chrome-dark (admin chrome) both reference
-  them, and src/lib/brand.ts mirrors them for the <canvas> poster + admin forms.
+  (single source). :root (guest) and .chrome (admin chrome, dark mode) both
+  reference them, and src/lib/brand.ts mirrors them for the <canvas> poster + admin forms.
   Also update --c-accent / --c-ink and the admin LIGHT palette (:root.admin-theme).
   Team selection re-tints --c-primary/--c-secondary at runtime (see
   src/lib/teamTheme.ts) with a HARD cut (no transition).
@@ -18,8 +18,8 @@
 
 :root {
   /* === BRAND DARK PALETTE — single source. Swap these on a rebrand. =========
-     The admin LIGHT theme overrides the derived --c-* below; .chrome-dark
-     restores them from these same --brand-* values, so there is one place to
+     The admin LIGHT theme overrides the derived --c-* below; .chrome (in dark
+     mode) restores them from these same --brand-* values, so there is one place to
      change the dark palette. Keep src/lib/brand.ts in sync with these. */
   --brand-primary: #121317; /* Base — app background (near-black) */
   --brand-secondary: #1a1920; /* Surface — cards / panels */
@@ -55,6 +55,10 @@
   --c-on-dark: #f4f4f5;
   /* Input/field background — dark-translucent on the dark theme, white on light. */
   --c-field: var(--brand-field);
+  /* Row hover/highlight — ADAPTIVE: a brighter cream wash on the dark theme,
+     a darker ink wash on the light theme (see :root.admin-theme). Stronger than
+     --c-field so a hovered row reads clearly above the resting state. */
+  --c-hover: rgba(244, 244, 245, 0.1);
 
   /* ── TYPE SCALE — 7 tiers, min 13px in UI ──────────────────────────────
      Display tiers (hero/section/card) scale down on small screens via clamp,
@@ -90,6 +94,7 @@
   --c-text-mute: #6b6770; /* secondary text */
   --c-border: rgba(18, 19, 23, 0.12); /* hairline on light */
   --c-field: #ffffff; /* white inputs */
+  --c-hover: rgba(18, 19, 23, 0.06); /* darker row wash on light surfaces */
 
   /* The .t-* type tiers bake these in directly — flip them to dark too. */
   --text-primary: #18181b;
@@ -112,18 +117,21 @@
 }
 
 /*
-  Re-assert the dark brand palette for a subtree, regardless of the light admin
-  theme above. Used on the admin top bar + sidebar so the chrome stays on-brand
-  while the content area + modals are light. Pulls from the same --brand-* single
-  source as :root, so it follows a rebrand automatically (no values to keep in sync).
+  Admin chrome (top bar + sidebar). It follows the active admin theme: in LIGHT
+  mode it inherits the light tokens from `:root.admin-theme` (so the chrome turns
+  bright with dark text), and in DARK mode this rule re-asserts the dark brand
+  palette below. Scoped with `:not(.admin-theme)` so it only forces dark when the
+  page isn't in light mode. Pulls from the same --brand-* single source as :root,
+  so it follows a rebrand automatically (no values to keep in sync).
 */
-.chrome-dark {
+:root:not(.admin-theme) .chrome {
   --c-primary: var(--brand-primary);
   --c-secondary: var(--brand-secondary);
   --c-text-main: var(--brand-text);
   --c-text-mute: var(--brand-mute);
   --c-border: var(--brand-border);
   --c-field: var(--brand-field);
+  --c-hover: rgba(244, 244, 245, 0.1);
   --text-primary: var(--brand-text);
   --text-secondary: var(--brand-mute);
 }
@@ -139,6 +147,7 @@
   --color-cream: var(--c-text-main);
   --color-mute: var(--c-text-mute);
   --color-line: var(--c-border);
+  --color-hover: var(--c-hover);
   --color-success: var(--c-success);
   --color-warn: var(--c-warn);
   --color-danger: var(--c-danger);

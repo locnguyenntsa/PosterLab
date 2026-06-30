@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils'
 export interface SelectOption {
   value: string
   label: string
+  /** Optional trailing annotation (e.g. a price) shown muted before the check. */
+  hint?: string
 }
 
 interface SelectProps {
@@ -145,7 +147,7 @@ export function Select({
           'flex h-12 w-full items-center justify-between gap-2 border border-line bg-[var(--c-field)] px-4 text-lg font-semibold backdrop-blur-sm',
           selected ? 'text-cream' : 'text-mute',
           'focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-cream',
-          'disabled:cursor-not-allowed disabled:opacity-50',
+          'disabled:cursor-not-allowed disabled:bg-ink/[0.06] disabled:text-mute disabled:opacity-70',
           ariaInvalid && 'border-danger focus-visible:outline-danger',
         )}
       >
@@ -164,7 +166,7 @@ export function Select({
           ref={listRef}
           role="listbox"
           tabIndex={-1}
-          className="absolute inset-x-0 z-30 mt-1 max-h-60 overflow-y-auto border border-line bg-surface py-1"
+          className="absolute inset-x-0 z-30 mt-1 max-h-60 overflow-y-auto border border-line bg-surface py-1 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.55)]"
         >
           {options.map((o, i) => {
             const isSelected = o.value === value
@@ -179,11 +181,22 @@ export function Select({
                 onClick={() => choose(i)}
                 className={cn(
                   'flex cursor-pointer items-center justify-between gap-2 px-4 py-2.5 text-lg font-semibold text-cream',
-                  isActive && 'bg-ink/[0.06]',
+                  isActive && 'bg-hover',
                 )}
               >
                 <span className="truncate">{o.label}</span>
-                {isSelected && <CheckBadge className="size-5" />}
+                {o.hint ? (
+                  // Reserve the check column so the hint (price) stays aligned
+                  // whether or not the row is the selected one.
+                  <span className="flex shrink-0 items-center gap-2.5">
+                    <span className="t-body tabular-nums text-mute">{o.hint}</span>
+                    <span className="grid size-5 place-items-center">
+                      {isSelected && <CheckBadge className="size-5" />}
+                    </span>
+                  </span>
+                ) : (
+                  isSelected && <CheckBadge className="size-5" />
+                )}
               </li>
             )
           })}

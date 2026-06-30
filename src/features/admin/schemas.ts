@@ -24,6 +24,14 @@ export type DesignFormValues = z.infer<typeof designSchema>
 
 const HEX = /^#([0-9a-fA-F]{6})$/
 
+/** An optional EUR price field, held as a string (blank = use the default). */
+const priceField = z
+  .string()
+  .trim()
+  .regex(/^\d+(\.\d{1,2})?$/, 'Use a price like 39 or 41.50')
+  .optional()
+  .or(z.literal(''))
+
 export const teamSchema = z.object({
   name: z.string().min(2, 'Team name is required').max(50, 'Keep it under 50 characters'),
   sportId: z.string().min(1, 'Choose a sport'),
@@ -43,10 +51,25 @@ export const teamSchema = z.object({
    * "Coming Soon" in the tunnel and routes taps to the "not listed" flow.
    */
   partner: z.boolean(),
-  /** The club's single prepared design (slide 7: "one design = one club"). */
+  /** The club's CLASSIC prepared design. */
   designId: z.string().min(1, 'Choose a design'),
+  /** Optional second EVENT design, surfaced during an event window. */
+  eventDesignId: z.string().optional(),
   posters: z.array(z.string()).optional(),
   logoUrl: z.string().optional(),
+  // ── Pro Shop overrides (all optional → fall back to catalog defaults) ──
+  /** Per-club offer price overrides (EUR strings); blank = use the default constant. */
+  prices: z
+    .object({ digital: priceField, printed: priceField, pack: priceField })
+    .optional(),
+  /** Storefront hero copy overrides. */
+  heroTitleTop: z.string().max(40, 'Keep it under 40 characters').optional(),
+  heroHighlight: z.string().max(40, 'Keep it under 40 characters').optional(),
+  heroDescription: z.string().max(120, 'Keep it under 120 characters').optional(),
+  badgeTitle: z.string().max(40, 'Keep it under 40 characters').optional(),
+  accent: z.string().regex(HEX, 'Use a hex color like #1d995b').optional().or(z.literal('')),
+  /** Uploaded storefront backdrop photo (data URL in the demo). */
+  backdropUrl: z.string().optional(),
 })
 
 export type TeamFormValues = z.infer<typeof teamSchema>

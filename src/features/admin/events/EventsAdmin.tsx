@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
-import { CalendarDays, Pencil, Trash2, ExternalLink, Link2 } from 'lucide-react'
+import { CalendarDays, Plus, Pencil, Trash2, ExternalLink, Link2 } from 'lucide-react'
 import type { Event } from '@/types'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { SearchInput } from '@/components/ui/search-input'
 import { DataTable } from '@/components/ui/data-table'
 import type { Column } from '@/components/ui/data-table'
 import { DropdownMenu } from '@/components/ui/dropdown-menu'
@@ -150,11 +150,10 @@ export function EventsAdmin() {
         actionLabel="New event"
         onAction={() => openEvent('new')}
       >
-        <Input
+        <SearchInput
           placeholder="Search events…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-44"
         />
       </PageHeader>
 
@@ -174,7 +173,8 @@ export function EventsAdmin() {
             }
             action={
               events.length === 0 ? (
-                <Button size="sm" onClick={() => openEvent('new')}>
+                <Button onClick={() => openEvent('new')}>
+                  <Plus className="size-5" strokeWidth={2} />
                   New event
                 </Button>
               ) : undefined

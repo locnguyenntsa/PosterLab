@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
 import { Dialog } from '@/components/ui/dialog'
+import { DateTimePicker } from '@/components/ui/date-time-picker'
 import { Field } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
@@ -135,10 +136,22 @@ function EventFormBody({ id }: { id: string | 'new' }) {
 
       <div className="grid grid-cols-2 gap-4">
         <Field label="Start date" error={errors.startDate?.message} htmlFor="event-start">
-          <Input id="event-start" type="date" aria-invalid={!!errors.startDate} {...register('startDate')} />
+          <DateTimePicker
+            id="event-start"
+            mode="date"
+            value={values.startDate ?? ''}
+            onChange={(v) => setValue('startDate', v, { shouldDirty: true, shouldValidate: true })}
+            aria-invalid={!!errors.startDate}
+          />
         </Field>
         <Field label="End date" error={errors.endDate?.message} htmlFor="event-end">
-          <Input id="event-end" type="date" aria-invalid={!!errors.endDate} {...register('endDate')} />
+          <DateTimePicker
+            id="event-end"
+            mode="date"
+            value={values.endDate ?? ''}
+            onChange={(v) => setValue('endDate', v, { shouldDirty: true, shouldValidate: true })}
+            aria-invalid={!!errors.endDate}
+          />
         </Field>
       </div>
 
@@ -174,11 +187,12 @@ function EventFormBody({ id }: { id: string | 'new' }) {
 
       <div className="grid grid-cols-2 gap-4">
         <Field label="Kick-off" error={errors.kickoff?.message} htmlFor="event-kickoff">
-          <Input
+          <DateTimePicker
             id="event-kickoff"
-            type="datetime-local"
+            mode="datetime"
+            value={values.kickoff ?? ''}
+            onChange={(v) => setValue('kickoff', v, { shouldDirty: true, shouldValidate: true })}
             aria-invalid={!!errors.kickoff}
-            {...register('kickoff')}
           />
         </Field>
         <Field label="Venue (optional)" error={errors.venue?.message} htmlFor="event-venue">

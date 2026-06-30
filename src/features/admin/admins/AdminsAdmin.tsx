@@ -1,4 +1,4 @@
-import { ShieldCheck, Mail, Pencil, Trash2 } from 'lucide-react'
+import { ShieldCheck, Plus, Mail, Pencil, Trash2 } from 'lucide-react'
 import type { AdminAccount } from '@/types'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -95,7 +95,8 @@ export function AdminsAdmin() {
             title="No admins yet"
             message="Add an admin account to manage this list."
             action={
-              <Button size="sm" onClick={() => openAdmin('new')}>
+              <Button onClick={() => openAdmin('new')}>
+                <Plus className="size-5" strokeWidth={2} />
                 New admin
               </Button>
             }

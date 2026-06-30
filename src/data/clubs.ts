@@ -6,9 +6,9 @@ import type { Club } from '@/types'
  */
 export const CLUBS: Club[] = [
   // Football
-  { id: 'paris-fc', sportId: 'football', name: 'Paris FC', city: 'Paris', shortCode: 'PFC', colors: { primary: '#1e3a8a', secondary: '#3b82f6' }, designId: 'spotlight', logoUrl: '/club-logos/paris-fc.png', posters: ['/posters/paris-fc-1.jpg'] },
+  { id: 'paris-fc', sportId: 'football', name: 'Paris FC', city: 'Paris', shortCode: 'PFC', colors: { primary: '#1e3a8a', secondary: '#3b82f6' }, designId: 'spotlight', eventDesignId: 'minimal', logoUrl: '/club-logos/paris-fc.png', posters: ['/posters/paris-fc-1.jpg'] },
   { id: 'stade-reims', sportId: 'football', name: 'Stade de Reims', city: 'Reims', shortCode: 'SDR', colors: { primary: '#dc2626', secondary: '#f8fafc' }, designId: 'stadium', logoUrl: '/club-logos/stade-reims.png', posters: ['/posters/reims-1.jpg', '/posters/reims-2.jpg', '/posters/reims-3.jpg'] },
-  { id: 'asse', sportId: 'football', name: 'AS Saint-Étienne', city: 'Saint-Étienne', shortCode: 'ASSE', colors: { primary: '#16a34a', secondary: '#f8fafc' }, designId: 'retro', logoUrl: '/club-logos/asse.png', posters: ['/posters/asse-1.jpg', '/posters/asse-2.jpg', '/posters/asse-3.jpg'] },
+  { id: 'asse', sportId: 'football', name: 'AS Saint-Étienne', city: 'Saint-Étienne', shortCode: 'ASSE', colors: { primary: '#16a34a', secondary: '#f8fafc' }, designId: 'retro', eventDesignId: 'stadium', logoUrl: '/club-logos/asse.png', posters: ['/posters/asse-1.jpg', '/posters/asse-2.jpg', '/posters/asse-3.jpg'] },
   { id: 'olympique-lyon', sportId: 'football', name: 'Olympique Lyonnais', city: 'Lyon', shortCode: 'OL', colors: { primary: '#1d4ed8', secondary: '#ef4444' }, designId: 'minimal', partner: false },
   { id: 'fc-nantes', sportId: 'football', name: 'FC Nantes', city: 'Nantes', shortCode: 'FCN', colors: { primary: '#facc15', secondary: '#16a34a' }, designId: 'spotlight', partner: false },
 

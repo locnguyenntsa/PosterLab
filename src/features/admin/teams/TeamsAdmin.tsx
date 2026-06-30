@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
-import { Users, MapPin, Pencil, Copy, Trash2, Link2 } from 'lucide-react'
+import { Users, Plus, MapPin, Pencil, Copy, Trash2, Link2, ImageOff } from 'lucide-react'
 import type { Club } from '@/types'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { SearchInput } from '@/components/ui/search-input'
 import { Select } from '@/components/ui/select'
 import { DataTable } from '@/components/ui/data-table'
 import type { Column } from '@/components/ui/data-table'
@@ -41,15 +41,19 @@ export function TeamsAdmin() {
 
   const columns: Column<Club>[] = [
     {
-      key: 'colors',
+      key: 'logo',
       header: '',
       className: 'w-16',
-      cell: (c) => (
-        <div className="flex gap-1">
-          <span className="size-5 border border-line" style={{ background: c.colors.primary }} />
-          <span className="size-5 border border-line" style={{ background: c.colors.secondary }} />
-        </div>
-      ),
+      cell: (c) =>
+        c.logoUrl ? (
+          // Transparent crest, no backdrop.
+          <img src={c.logoUrl} alt="" className="size-10 shrink-0 object-contain" />
+        ) : (
+          // No crest uploaded yet — a muted, dashed placeholder icon.
+          <div className="grid size-10 shrink-0 place-items-center border border-dashed border-line text-mute">
+            <ImageOff className="size-5" strokeWidth={1.5} />
+          </div>
+        ),
     },
     {
       key: 'name',
@@ -81,10 +85,10 @@ export function TeamsAdmin() {
       cell: (c) => {
         const sport = getSport(c.sportId)
         return (
-          <Badge variant="outline">
+          <span className="flex items-center gap-1.5 label text-cream">
             <span>{sport?.emoji}</span>
             {sport?.name ?? c.sportId}
-          </Badge>
+          </span>
         )
       },
     },
@@ -151,11 +155,10 @@ export function TeamsAdmin() {
         actionLabel="New team"
         onAction={() => openTeam('new')}
       >
-        <Input
+        <SearchInput
           placeholder="Search teams…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-44"
         />
         <Select
           aria-label="Filter by sport"
@@ -185,7 +188,10 @@ export function TeamsAdmin() {
             }
             action={
               teams.length === 0 ? (
-                <Button size="sm" onClick={() => openTeam('new')}>New team</Button>
+                <Button onClick={() => openTeam('new')}>
+                  <Plus className="size-5" strokeWidth={2} />
+                  New team
+                </Button>
               ) : undefined
             }
           />

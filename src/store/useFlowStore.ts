@@ -120,8 +120,6 @@ interface FlowState {
 
   // Checkout (Steps 4–5)
   order: OrderDetails
-  /** Digital-version upsell accepted at the ordering moment. */
-  digitalAddon: boolean
   orderNumber: string | null
 
   // Navigation
@@ -141,7 +139,6 @@ interface FlowState {
   setPoster: (url: string) => void
   setCartItemId: (id: string | null) => void
   updateOrder: (partial: Partial<OrderDetails>) => void
-  setDigitalAddon: (v: boolean) => void
   setOrderNumber: (n: string) => void
   /** Clear the working poster and return to the Design step, KEEPING the cart. */
   startAnother: () => void
@@ -191,7 +188,6 @@ export const useFlowStore = create<FlowState>((set, get) => ({
   genericDesign: false,
   genericColor: null,
   order: EMPTY_ORDER,
-  digitalAddon: false,
   orderNumber: null,
 
   start: () => set({ step: 1 }),
@@ -264,7 +260,6 @@ export const useFlowStore = create<FlowState>((set, get) => ({
 
   updateOrder: (partial) =>
     set((s) => ({ order: { ...s.order, ...partial } })),
-  setDigitalAddon: (v) => set({ digitalAddon: v }),
   setOrderNumber: (n) => set({ orderNumber: n }),
 
   // Keep the cart + shipping details; just clear the working poster and go back
@@ -285,7 +280,6 @@ export const useFlowStore = create<FlowState>((set, get) => ({
         placeId: null,
         ...CLEARED_POSTER,
         order: EMPTY_ORDER,
-        digitalAddon: false,
         orderNumber: null,
       }
       // In a Pro Shop, "Create Another" keeps the buyer in the same themed shop.

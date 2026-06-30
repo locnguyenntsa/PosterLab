@@ -19,7 +19,7 @@ export function ThemeToggle() {
       aria-label={label}
       aria-pressed={!isLight}
       title={label}
-      className="grid size-9 cursor-pointer place-items-center text-mute transition-colors hover:bg-ink/40 hover:text-cream"
+      className="grid size-9 cursor-pointer place-items-center text-mute transition-colors hover:bg-cream/10 hover:text-cream"
     >
       {isLight ? (
         <Moon className="size-5" strokeWidth={1.5} />

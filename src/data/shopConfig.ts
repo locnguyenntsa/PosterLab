@@ -110,6 +110,27 @@ export function shopConfigFor(clubId: string | null): ShopConfig {
 }
 
 /**
+ * Resolved storefront config for a club: the admin-editable fields on the club
+ * (backdrop, hero copy, badge, accent — set in the Teams form) overlaid on the
+ * static fallback. Any field the club leaves blank keeps the static/default
+ * value, so existing storefronts look unchanged until the back-office edits them.
+ */
+export function shopConfigForClub(club: import('@/types').Club | null | undefined): ShopConfig {
+  const base = shopConfigFor(club?.id ?? null)
+  if (!club) return base
+  return {
+    ...base,
+    backdrop: club.backdropUrl ?? base.backdrop,
+    logo: club.logoUrl ?? base.logo,
+    titleTop: club.heroTitleTop ?? base.titleTop,
+    titleBottom: club.heroHighlight ?? base.titleBottom,
+    description: club.heroDescription ?? base.description,
+    badgeTitle: club.badgeTitle ?? base.badgeTitle,
+    accent: club.accent ?? base.accent,
+  }
+}
+
+/**
  * Map an admin-managed Pro Shop event (Pro Admin tab) to the storefront's
  * EventConfig shape, so a live campaign drives the same match-day landing the
  * static `event` config does. The admin event's start/end window decides

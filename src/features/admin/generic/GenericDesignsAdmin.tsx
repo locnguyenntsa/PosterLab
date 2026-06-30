@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react'
-import { Palette, Pencil, Trash2 } from 'lucide-react'
+import { Palette, Plus, Pencil, Trash2 } from 'lucide-react'
 import type { GenericDesign } from '@/types'
+import { GenericPosterArt } from '@/components/GenericPosterArt'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { SearchInput } from '@/components/ui/search-input'
 import { DataTable } from '@/components/ui/data-table'
 import type { Column } from '@/components/ui/data-table'
 import { DropdownMenu } from '@/components/ui/dropdown-menu'
@@ -32,10 +33,21 @@ export function GenericDesignsAdmin() {
 
   const columns: Column<GenericDesign>[] = [
     {
-      key: 'color',
+      key: 'preview',
       header: '',
-      className: 'w-12',
-      cell: (d) => <span className="size-6 border border-line" style={{ background: d.color }} />,
+      className: 'w-16',
+      // A real thumbnail of the design — the recolored SAISON poster (or an
+      // uploaded artwork override) — instead of a bare colour swatch.
+      cell: (d) =>
+        d.thumbnailUrl ? (
+          <img
+            src={d.thumbnailUrl}
+            alt=""
+            className="aspect-[3/4] w-10 border border-line object-cover"
+          />
+        ) : (
+          <GenericPosterArt color={d.color} className="w-10 border border-line" />
+        ),
     },
     {
       key: 'name',
@@ -89,11 +101,10 @@ export function GenericDesignsAdmin() {
         actionLabel="New generic design"
         onAction={() => openGeneric('new')}
       >
-        <Input
+        <SearchInput
           placeholder="Search…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-44"
         />
       </PageHeader>
 
@@ -113,7 +124,8 @@ export function GenericDesignsAdmin() {
             }
             action={
               designs.length === 0 ? (
-                <Button size="sm" onClick={() => openGeneric('new')}>
+                <Button onClick={() => openGeneric('new')}>
+                  <Plus className="size-5" strokeWidth={2} />
                   New generic design
                 </Button>
               ) : undefined

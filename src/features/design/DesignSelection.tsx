@@ -14,7 +14,19 @@ import type { DesignSub } from '@/store/useFlowStore'
 import type { Place } from '@/types'
 import { SPORTS, getSport } from '@/data/sports'
 import { getPlace, findPlaceByCityName, filterPlaces, fold } from '@/data/places'
-import { useTeams, useDesigns, clubPosterAt, clubDesign, resolveClub } from '@/store/useCatalogStore'
+import { Check } from 'lucide-react'
+import {
+  useTeams,
+  useDesigns,
+  useEvents,
+  clubPosterAt,
+  clubDesign,
+  clubEventDesign,
+  activeEventForClub,
+  previewEventForClub,
+  resolveClub,
+} from '@/store/useCatalogStore'
+import { shopConfigForClub } from '@/data/shopConfig'
 
 const SUBTITLES: Record<DesignSub, string> = {
   sport: 'Pick your sport. We match the clubs.',
@@ -59,6 +71,7 @@ export function DesignSelection() {
 
   const teams = useTeams()
   const designs = useDesigns()
+  const events = useEvents()
   const place = getPlace(placeId)
   const sport = getSport(sportId)
   // resolveClub also returns the synthetic generic club (not in the teams array).
@@ -76,12 +89,30 @@ export function DesignSelection() {
         ? saisonDesign
         : clubDesign(club, designs)
 
-  // Auto-select the club's single design so the downstream photo → render →
-  // checkout steps (which read templateId) work without a manual style pick.
+  // In a Pro Shop, a club can offer a second EVENT design during a live event
+  // window (client feedback: several designs per club). When active the template
+  // step becomes a Classic vs Event picker; otherwise it's the single design.
+  const eventDesign = shopClubId ? clubEventDesign(club, designs) : undefined
+  // The Event design shows whenever the storefront is presenting as a MATCH-DAY
+  // shop — the same signal that puts the landing in event mode: a live admin
+  // campaign, the `?event=` preview link, or the club's configured fixture
+  // (shopConfig.event). Off a match-day shop it stays the single Classic design.
+  const shopEvent = shopClubId ? shopConfigForClub(club).event : undefined
+  const eventActive =
+    !!shopClubId &&
+    !!eventDesign &&
+    (!!activeEventForClub(events, shopClubId) ||
+      !!previewEventForClub(events, shopClubId) ||
+      !!shopEvent)
+
+  // Auto-select a design so the downstream photo → render → checkout steps (which
+  // read templateId) work without a manual pick. Keep the current selection when
+  // it's already a valid choice (so an Event pick sticks); else default to classic.
   useEffect(() => {
     if (!design) return
-    if (templateId !== design.id) setTemplate(design.id)
-  }, [design, templateId, setTemplate])
+    const valid = eventActive && eventDesign ? [design.id, eventDesign.id] : [design.id]
+    if (!templateId || !valid.includes(templateId)) setTemplate(design.id)
+  }, [design, eventDesign, eventActive, templateId, setTemplate])
 
   // Preview the one design with the club's own poster when it has one, else a
   // neutral base recolored to the club's brand. No placeholder.
@@ -531,7 +562,63 @@ export function DesignSelection() {
           No designs are available right now. Please check back soon.
         </div>
       )}
-      {sub === 'template' && club && design && (
+      {/* Event window: pick between the club's Classic and Event designs. The
+          Classic / Event title sits ABOVE each card (not over the poster), and the
+          selected card flips to a white background so the choice is unmistakable. */}
+      {sub === 'template' && club && design && eventActive && eventDesign && (
+        <div className="mx-auto max-w-lg">
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { d: design, kind: 'Classic' as const },
+              { d: eventDesign, kind: 'Event' as const },
+            ].map(({ d, kind }) => {
+              const selected = templateId === d.id
+              return (
+                <motion.div
+                  key={d.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.12 }}
+                  className="flex flex-col gap-2"
+                >
+                  {/* Title on top, outside the poster. */}
+                  <p className="text-center t-card text-3xl text-cream">{kind}</p>
+                  <button
+                    type="button"
+                    onClick={() => setTemplate(d.id)}
+                    aria-pressed={selected}
+                    className={cn(
+                      'relative flex flex-col gap-3 border-2 p-3 text-left transition-colors duration-100',
+                      selected
+                        ? 'border-cream bg-cream'
+                        : 'border-line bg-surface backdrop-blur-sm hover:border-cream/30',
+                    )}
+                  >
+                    {selected && (
+                      <span className="absolute right-1 top-1 z-30 grid size-6 place-items-center bg-cream text-ink">
+                        <Check className="size-4" strokeWidth={3} />
+                      </span>
+                    )}
+                    <PosterArt club={club} template={d} image={designPreview} tint={designTint} />
+                    <div className="px-1 pb-1">
+                      <p className={cn('t-card text-lg', selected && 'text-ink')}>{d.name}</p>
+                      <p className={cn('mt-1 text-sm', selected ? 'text-ink/70' : 't-body')}>
+                        {d.description}
+                      </p>
+                    </div>
+                  </button>
+                </motion.div>
+              )
+            })}
+          </div>
+          <p className="mt-4 text-center t-body text-sm text-mute">
+            {club.name} has a match-day design live — pick Classic or Event.
+          </p>
+        </div>
+      )}
+
+      {/* Default: the club's single prepared design, shown for confirmation. */}
+      {sub === 'template' && club && design && !(eventActive && eventDesign) && (
         <div className="mx-auto max-w-xs">
           <motion.div
             initial={{ opacity: 0, y: 8 }}
