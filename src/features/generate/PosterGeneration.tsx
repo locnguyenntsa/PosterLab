@@ -78,7 +78,8 @@ export function PosterGeneration() {
   // the figures reflect the back-office pricing (amateur flow passes none).
   const proClub = shopClubId ? club : undefined
 
-  // The "make it a Pack" upsell fires once when a PRINTED-ONLY poster is added.
+  // The "make it a Pack" upsell fires once when a printed- or digital-only
+  // poster is added.
   const [showUpsell, setShowUpsell] = useState(false)
   const afterUpsellRef = useRef<'stay' | 'checkout'>('stay')
   const upsellDoneRef = useRef(false)
@@ -171,11 +172,11 @@ export function PosterGeneration() {
     setCartItemId(addItem({ clubId, templateId, posterUrl, ...line }))
   }
 
-  // The digital upsell: only a PRINTED-only standard poster gets nudged toward
-  // the Pack, and only once. Returns true when the pop-up is shown so callers can
-  // defer navigation until it's accepted or dismissed.
+  // The Pack upsell: a single-offer standard poster (printed OR digital) gets
+  // nudged toward the Pack, and only once. Returns true when the pop-up is shown
+  // so callers can defer navigation until it's accepted or dismissed.
   function maybeUpsell(after: 'stay' | 'checkout'): boolean {
-    if (isStandard && offer === 'printed' && !upsellDoneRef.current) {
+    if (isStandard && offer !== 'pack' && !upsellDoneRef.current) {
       afterUpsellRef.current = after
       setShowUpsell(true)
       return true
@@ -397,6 +398,11 @@ export function PosterGeneration() {
 
       <UpsellDialog
         open={showUpsell}
+        from={offer === 'digital' ? 'digital' : 'printed'}
+        topUp={
+          offerPrice('pack', proClub, size) -
+          offerPrice(offer === 'digital' ? 'digital' : 'printed', proClub, size)
+        }
         saving={packSaving(proClub)}
         onClose={() => resolveUpsell(false)}
         onAccept={() => resolveUpsell(true)}

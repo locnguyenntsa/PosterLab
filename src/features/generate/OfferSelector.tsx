@@ -89,18 +89,23 @@ export function OfferSelector({
 
             {selected && hasSize && (
               <div className="flex flex-wrap items-center gap-4 border-t border-line px-6 py-4">
-                <Select
-                  aria-label="Print size"
-                  className="min-w-[12rem] flex-1"
-                  value={size}
-                  onChange={onSize}
-                  options={PRINT_SIZES.map((s) => ({
-                    value: s.label,
-                    label: s.label,
-                    hint: formatEUR(offerPrice(o.id, club, s.label)),
-                  }))}
-                  disabled={disabled}
-                />
+                {/* A single catalog size reads as a fixed format, not a choice. */}
+                {PRINT_SIZES.length > 1 ? (
+                  <Select
+                    aria-label="Print size"
+                    className="min-w-[12rem] flex-1"
+                    value={size}
+                    onChange={onSize}
+                    options={PRINT_SIZES.map((s) => ({
+                      value: s.label,
+                      label: s.label,
+                      hint: formatEUR(offerPrice(o.id, club, s.label)),
+                    }))}
+                    disabled={disabled}
+                  />
+                ) : (
+                  <span className="min-w-0 flex-1 t-body text-cream">{size}</span>
+                )}
                 <QtyStepper value={qty} onChange={onQty} />
               </div>
             )}

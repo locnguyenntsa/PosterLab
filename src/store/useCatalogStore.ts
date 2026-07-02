@@ -4,11 +4,12 @@ import type { Club, PosterTemplate, GenericDesign, Event } from '@/types'
 import { TEMPLATES } from '@/data/templates'
 import { CLUBS } from '@/data/clubs'
 import { GENERIC_CLUB, GENERIC_DESIGNS } from '@/data/generic'
-import type {
-  DesignFormValues,
-  TeamFormValues,
-  GenericDesignFormValues,
-  EventFormValues,
+import {
+  deriveShortCode,
+  type DesignFormValues,
+  type TeamFormValues,
+  type GenericDesignFormValues,
+  type EventFormValues,
 } from '@/features/admin/schemas'
 
 /*
@@ -225,7 +226,7 @@ export const useCatalogStore = create<CatalogState>()(
           sportId: v.sportId,
           name: v.name,
           city: v.city,
-          shortCode: v.shortCode.toUpperCase(),
+          shortCode: (v.shortCode || deriveShortCode(v.name)).toUpperCase(),
           colors: { primary: v.colors.primary, secondary: v.colors.secondary },
           posters: v.posters,
           partner: v.partner,
@@ -248,7 +249,7 @@ export const useCatalogStore = create<CatalogState>()(
                   sportId: v.sportId,
                   name: v.name,
                   city: v.city,
-                  shortCode: v.shortCode.toUpperCase(),
+                  shortCode: (v.shortCode || deriveShortCode(v.name)).toUpperCase(),
                   colors: { primary: v.colors.primary, secondary: v.colors.secondary },
                   posters: v.posters,
                   partner: v.partner,
