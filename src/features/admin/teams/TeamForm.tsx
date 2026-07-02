@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { DIGITAL_PRICE_EUR, PRINTED_PRICE_EUR, PACK_PRICE_EUR } from '@/types'
-import { teamSchema } from '@/features/admin/schemas'
+import { teamSchema, deriveShortCode } from '@/features/admin/schemas'
 import type { TeamFormValues } from '@/features/admin/schemas'
 import { uploadImage } from '@/features/admin/upload'
 import { SPORTS } from '@/data/sports'
@@ -160,7 +160,7 @@ function TeamFormBody({ id }: { id: string | 'new' }) {
     sportId: values.sportId,
     name: values.name || 'Your Team',
     city: values.city,
-    shortCode: (values.shortCode || 'TBD').toUpperCase(),
+    shortCode: (values.shortCode || deriveShortCode(values.name)).toUpperCase(),
     colors: {
       primary: isHex(values.colors.primary) ? values.colors.primary : BRAND.primary,
       secondary: isHex(values.colors.secondary) ? values.colors.secondary : BRAND.secondary,
@@ -240,7 +240,7 @@ function TeamFormBody({ id }: { id: string | 'new' }) {
             <Field label="City" error={errors.city?.message} htmlFor="team-city">
               <Input id="team-city" placeholder="Paris" aria-invalid={!!errors.city} {...register('city')} />
             </Field>
-            <Field label="Short code" error={errors.shortCode?.message} htmlFor="team-code">
+            <Field label="Short code" hint="Optional" error={errors.shortCode?.message} htmlFor="team-code">
               <Input
                 id="team-code"
                 placeholder="PFC"

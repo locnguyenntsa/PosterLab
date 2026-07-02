@@ -36,11 +36,13 @@ export const teamSchema = z.object({
   name: z.string().min(2, 'Team name is required').max(50, 'Keep it under 50 characters'),
   sportId: z.string().min(1, 'Choose a sport'),
   city: z.string().min(1, 'City is required'),
+  /** Optional — blank derives a code from the team name (see deriveShortCode). */
   shortCode: z
     .string()
     .min(2, 'At least 2 characters')
     .max(5, 'At most 5 characters')
-    .regex(/^[A-Za-z0-9]+$/, 'Letters and numbers only'),
+    .regex(/^[A-Za-z0-9]+$/, 'Letters and numbers only')
+    .or(z.literal('')),
   colors: z.object({
     primary: z.string().regex(HEX, 'Use a hex color like #121317'),
     secondary: z.string().regex(HEX, 'Use a hex color like #1a1920'),
@@ -73,6 +75,19 @@ export const teamSchema = z.object({
 })
 
 export type TeamFormValues = z.infer<typeof teamSchema>
+
+/**
+ * Crest monogram fallback when the short code is left blank: the team name's
+ * initials ("Hermine Nantes Basket" → "HNB"), or the first letters of a
+ * single-word name. Club.shortCode stays non-empty everywhere downstream
+ * (crest squares, poster composites, pattern backgrounds).
+ */
+export function deriveShortCode(name: string): string {
+  const words = name.match(/[\p{L}\p{N}]+/gu) ?? []
+  const initials = words.map((w) => w[0]).join('').toUpperCase()
+  if (initials.length >= 2) return initials.slice(0, 5)
+  return (words[0] ?? '').slice(0, 3).toUpperCase() || 'TBD'
+}
 
 /* Generic designs — a named jersey-colour variant of the SAISON template, shown
    to customers who can't find their club. */

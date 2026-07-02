@@ -1,13 +1,5 @@
 // Core domain types for the PosterLab tunnel.
 
-/** A French place (city/town) the guest picks first in the Design step. */
-export interface Place {
-  id: string
-  name: string
-  /** French région the place belongs to — shown as supporting meta. */
-  region: string
-}
-
 export interface Sport {
   id: string
   name: string
@@ -251,13 +243,12 @@ export interface PrintSize {
 /**
  * Print sizes/formats for the Printed & Pack offers, each with its own price.
  * The FIRST entry is the BASE size; a per-club price override shifts the base and
- * the other sizes keep their price difference from it (see lib/pricing). The
- * label doubles as the cart `size` snapshot. Placeholder prices.
+ * any other sizes keep their price difference from it (see lib/pricing). The
+ * label doubles as the cart `size` snapshot. One catalog format for now (client
+ * feedback: 30×40 only); the machinery stays so more sizes can return later.
  */
 export const PRINT_SIZES: PrintSize[] = [
   { label: POSTER_FORMAT, priceEur: POSTER_PRICE_EUR }, // Framed · 30×40 cm
-  { label: 'Framed · 50×70 cm', priceEur: 59 },
-  { label: 'Unframed · A3', priceEur: 29 },
 ]
 
 /**

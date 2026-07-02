@@ -20,6 +20,14 @@ export function isDarkColor(hex: string): boolean {
   return l !== null && l < 96
 }
 
+/** Accent/case-insensitive key so "etienne" matches "Saint-Étienne". */
+export function fold(s: string): string {
+  return s
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+}
+
 /** Format a number as EUR currency, e.g. 39 → "€39.00". */
 export function formatEUR(amount: number) {
   return new Intl.NumberFormat('en-IE', {
